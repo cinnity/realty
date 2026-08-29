@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -610,21 +612,20 @@ export default function PortfolioDashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const result = await window.storage.get(STORAGE_KEY, false);
-        if (result && result.value) {
-          const data = JSON.parse(result.value);
-          if (data.properties) setProperties(data.properties);
-          if (data.ledger) setLedger(data.ledger);
-          if (data.expenses) setExpenses(data.expenses);
-          if (data.utilities) setUtilities(data.utilities);
-          if (data.escrow) setEscrow(data.escrow);
-          if (data.mortgages) setMortgages(data.mortgages);
-          if (data.marketValues) setMarketValues(data.marketValues);
-          if (data.providers) setProviders(data.providers);
-          if (data.equipment) setEquipment(data.equipment);
-          if (data.maintenance) setMaintenance(data.maintenance);
-          if (data.compliance) setCompliance(data.compliance);
-        }
+        const res = await fetch("/api/portfolio");
+        const json = await res.json();
+        const data = json?.data || {};
+        if (data.properties) setProperties(data.properties);
+        if (data.ledger) setLedger(data.ledger);
+        if (data.expenses) setExpenses(data.expenses);
+        if (data.utilities) setUtilities(data.utilities);
+        if (data.escrow) setEscrow(data.escrow);
+        if (data.mortgages) setMortgages(data.mortgages);
+        if (data.marketValues) setMarketValues(data.marketValues);
+        if (data.providers) setProviders(data.providers);
+        if (data.equipment) setEquipment(data.equipment);
+        if (data.maintenance) setMaintenance(data.maintenance);
+        if (data.compliance) setCompliance(data.compliance);
       } catch (err) {
         // no saved data yet, or a read error — start from seed data
         console.log("No saved portfolio data found, starting fresh:", err);
@@ -641,8 +642,13 @@ export default function PortfolioDashboard() {
     setSaveStatus("saving");
     const timer = setTimeout(async () => {
       try {
-        const result = await window.storage.set(STORAGE_KEY, JSON.stringify({ properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance }), false);
-        setSaveStatus(result ? "saved" : "error");
+        const res = await fetch("/api/portfolio", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance }),
+        });
+        const json = await res.json();
+        setSaveStatus(json?.ok ? "saved" : "error");
       } catch (err) {
         console.error("Failed to save portfolio data:", err);
         setSaveStatus("error");
@@ -742,9 +748,9 @@ export default function PortfolioDashboard() {
       <header className="app-header">
         <div>
           <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.01em" }}>
-            The Ledger
+            Cinnity Realty
           </div>
-          <div style={{ color: T.inkSoft, fontSize: 13, marginTop: 2 }}>10-property portfolio &middot; August 2026</div>
+          <div style={{ color: T.inkSoft, fontSize: 13, marginTop: 2 }}>Property Portfolio</div>
         </div>
         <div style={{ fontSize: 12, color: T.inkSoft }}>
           {saveStatus === "saving" && "Saving…"}
