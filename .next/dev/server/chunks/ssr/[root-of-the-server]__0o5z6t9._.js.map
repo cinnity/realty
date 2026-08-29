@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 10, "column": 0}, "map": {"version":3,"sources":["file:///Users/cinnity/Realty/portfolio-app/app/page.jsx"],"sourcesContent":["import PortfolioDashboard from \"@/components/PortfolioDashboard\";\n\nexport default function Home() {\n  return <PortfolioDashboard />;\n}\n"],"names":["Home","PortfolioDashboard"],"mappings":";;;;;;;;;;;;AAEe,SAASA;IACtB,qBAAO,8OAACC;;;;;AACV"}}]
+}

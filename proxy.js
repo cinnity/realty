@@ -4,6 +4,11 @@ import { NextResponse } from "next/server";
 // prompt. Credentials come from environment variables, never hardcoded.
 // This protects both the pages and the /api/portfolio route, so the data
 // itself can't be read or written without the password either.
+//
+// Next.js 16 renamed the "middleware" file convention to "proxy" — this file
+// (and its exported `proxy` function) is that new convention, not the old
+// middleware.js / export function middleware(). A leftover middleware.js is
+// silently ignored on Next.js 16+, so don't keep both files around.
 
 function isAuthorized(request) {
   const header = request.headers.get("authorization");
@@ -17,7 +22,7 @@ function isAuthorized(request) {
   return user === process.env.AUTH_USERNAME && pass === process.env.AUTH_PASSWORD;
 }
 
-export function middleware(request) {
+export function proxy(request) {
   if (isAuthorized(request)) {
     return NextResponse.next();
   }

@@ -165,358 +165,173 @@ const FONTS = `
 }
 `;
 // ---------- sample properties ----------
+// Loaded from the 2024/2025 cash flow sheet. Tenant names and city for #3
+// weren't in the source data — left blank. Lease dates aren't tracked as a
+// field yet, so they're summarized here instead:
+//   #1  810B Stratford Way: lease 05/07/22–04/30/23 (expired)
+//   #2  11510 Little Patuxent Pkwy #407: lease 10/30/22–11/30/23
+//   #3  10249 Prince Pl: lease ended 12/31/2023, city not given in source
+//   #4  1624 Northbourne Rd: lease 06/15/22–06/30/23; rent was $1,800 Jan–Mar, $1,975 Aug–Dec
+//   #5  2061 Alice Ave #203: lease 11/01/21–11/30/22 (expired)
+//   #6  2000 Alice Ave #301: lease 07/01/22–07/31/24; ran a small monthly loss (~-$23.81) per source sheet
+//   #7  11415 Little Patuxent Pkwy #4-108: lease 01/15/22–12/31/22 (expired); ran a small monthly loss (~-$9.70)
+//   #8  5809 Greenlawn Dr: lease 04/01/21–04/30/23; source notes "tax, ins escrowed" — these are the lender-escrowed amounts, not separately billed
+//   #9  267 Cobblestone Ct: ~04/2022–04/2023, only 11 of 12 months occupied
+//   #10 11410 Little Patuxent Pkwy #1001: no lease dates given in source
 const SEED_PROPERTIES = [
     {
         id: 1,
-        name: "412 Maple Row",
-        city: "Bethesda, MD",
-        tenant: "J. Alvarez",
-        rent: 2450
+        name: "810B Stratford Way",
+        city: "Frederick, MD",
+        tenant: "",
+        rent: 1800,
+        leaseStart: "2022-05-07",
+        leaseEnd: "2023-04-30"
     },
     {
         id: 2,
-        name: "88 Larkspur Ct",
-        city: "Rockville, MD",
-        tenant: "T. Nguyen",
-        rent: 1980
+        name: "11510 Little Patuxent Pkwy #407",
+        city: "Columbia, MD",
+        tenant: "",
+        rent: 2100,
+        leaseStart: "2022-10-30",
+        leaseEnd: "2023-11-30"
     },
     {
         id: 3,
-        name: "1207 Cobalt Ave",
-        city: "Silver Spring, MD",
-        tenant: "M. Okafor",
-        rent: 2100
+        name: "10249 Prince Pl",
+        city: "",
+        tenant: "",
+        rent: 1700,
+        leaseStart: "",
+        leaseEnd: "2023-12-31"
     },
     {
         id: 4,
-        name: "56 Windmere Ln",
-        city: "Bethesda, MD",
-        tenant: "R. Fischer",
-        rent: 2600
+        name: "1624 Northbourne Rd",
+        city: "Baltimore, MD",
+        tenant: "",
+        rent: 1975,
+        leaseStart: "2022-06-15",
+        leaseEnd: "2023-06-30"
     },
     {
         id: 5,
-        name: "301 Birchwood Dr",
-        city: "Gaithersburg, MD",
-        tenant: "S. Patel",
-        rent: 1875
+        name: "2061 Alice Ave #203",
+        city: "Oxon Hill, MD",
+        tenant: "",
+        rent: 1750,
+        leaseStart: "2021-11-01",
+        leaseEnd: "2022-11-30"
     },
     {
         id: 6,
-        name: "19 Copperfield Way",
-        city: "Rockville, MD",
-        tenant: "L. Kowalski",
-        rent: 2225
+        name: "2000 Alice Ave #301",
+        city: "Oxon Hill, MD",
+        tenant: "",
+        rent: 1775,
+        leaseStart: "2022-07-01",
+        leaseEnd: "2024-07-31"
     },
     {
         id: 7,
-        name: "742 Thistle St",
-        city: "Silver Spring, MD",
-        tenant: "D. Reyes",
-        rent: 1990
+        name: "11415 Little Patuxent Pkwy #4-108",
+        city: "Columbia, MD",
+        tenant: "",
+        rent: 1650,
+        leaseStart: "2022-01-15",
+        leaseEnd: "2022-12-31"
     },
     {
         id: 8,
-        name: "5 Harrow Mews",
+        name: "5809 Greenlawn Dr",
         city: "Bethesda, MD",
-        tenant: "A. Kim",
-        rent: 2750
+        tenant: "",
+        rent: 4200,
+        leaseStart: "2021-04-01",
+        leaseEnd: "2023-04-30"
     },
     {
         id: 9,
-        name: "234 Foxglove Ter",
-        city: "Gaithersburg, MD",
-        tenant: "C. Osei",
-        rent: 1840
+        name: "267 Cobblestone Ct",
+        city: "Schaumburg, IL",
+        tenant: "",
+        rent: 2700,
+        leaseStart: "2022-04-01",
+        leaseEnd: "2023-04-30"
     },
     {
         id: 10,
-        name: "77 Pemberton Rd",
-        city: "Rockville, MD",
-        tenant: "N. Volkov",
-        rent: 2380
+        name: "11410 Little Patuxent Pkwy #1001",
+        city: "Columbia, MD",
+        tenant: "",
+        rent: 1900,
+        leaseStart: "",
+        leaseEnd: ""
     }
 ];
-const MONTHS = [
-    {
-        date: "2026-06-01",
-        label: "June"
-    },
-    {
-        date: "2026-07-01",
-        label: "July"
-    },
-    {
-        date: "2026-08-01",
-        label: "August"
-    }
-];
-// charges: rent posted on the 1st of each month for every property
-function genCharges() {
-    let id = 1;
-    const rows = [];
-    MONTHS.forEach((m)=>{
-        SEED_PROPERTIES.forEach((p)=>{
-            rows.push({
-                id: id++,
-                propertyId: p.id,
-                date: m.date,
-                type: "charge",
-                amount: p.rent,
-                note: `${m.label} rent`
-            });
-        });
-    });
-    return rows;
-}
-// hand-authored payment history so the portfolio shows a realistic mix:
-// fully current, partial-but-caught-up, and behind on multiple months
-const SEED_PAYMENTS = [
-    // 1 — always pays in full, on time
-    {
-        propertyId: 1,
-        date: "2026-06-02",
-        amount: 2450,
-        note: "Full payment"
-    },
-    {
-        propertyId: 1,
-        date: "2026-07-01",
-        amount: 2450,
-        note: "Full payment"
-    },
-    {
-        propertyId: 1,
-        date: "2026-08-02",
-        amount: 2450,
-        note: "Full payment"
-    },
-    // 2 — on time, full
-    {
-        propertyId: 2,
-        date: "2026-06-03",
-        amount: 1980,
-        note: "Full payment"
-    },
-    {
-        propertyId: 2,
-        date: "2026-07-03",
-        amount: 1980,
-        note: "Full payment"
-    },
-    {
-        propertyId: 2,
-        date: "2026-08-03",
-        amount: 1980,
-        note: "Full payment"
-    },
-    // 3 — current through July, August not yet paid
-    {
-        propertyId: 3,
-        date: "2026-06-05",
-        amount: 2100,
-        note: "Full payment"
-    },
-    {
-        propertyId: 3,
-        date: "2026-07-04",
-        amount: 2100,
-        note: "Full payment"
-    },
-    // 4 — full, on time
-    {
-        propertyId: 4,
-        date: "2026-06-01",
-        amount: 2600,
-        note: "Full payment"
-    },
-    {
-        propertyId: 4,
-        date: "2026-07-01",
-        amount: 2600,
-        note: "Full payment"
-    },
-    {
-        propertyId: 4,
-        date: "2026-08-01",
-        amount: 2600,
-        note: "Full payment"
-    },
-    // 5 — behind: partial every month, gap keeps growing
-    {
-        propertyId: 5,
-        date: "2026-06-08",
-        amount: 1200,
-        note: "Partial payment"
-    },
-    {
-        propertyId: 5,
-        date: "2026-06-22",
-        amount: 400,
-        note: "Partial payment"
-    },
-    {
-        propertyId: 5,
-        date: "2026-07-10",
-        amount: 900,
-        note: "Partial payment"
-    },
-    {
-        propertyId: 5,
-        date: "2026-08-06",
-        amount: 500,
-        note: "Partial payment"
-    },
-    // 6 — full, on time
-    {
-        propertyId: 6,
-        date: "2026-06-02",
-        amount: 2225,
-        note: "Full payment"
-    },
-    {
-        propertyId: 6,
-        date: "2026-07-02",
-        amount: 2225,
-        note: "Full payment"
-    },
-    {
-        propertyId: 6,
-        date: "2026-08-02",
-        amount: 2225,
-        note: "Full payment"
-    },
-    // 7 — caught up through July, made a partial payment for August
-    {
-        propertyId: 7,
-        date: "2026-06-04",
-        amount: 1990,
-        note: "Full payment"
-    },
-    {
-        propertyId: 7,
-        date: "2026-07-05",
-        amount: 1990,
-        note: "Full payment"
-    },
-    {
-        propertyId: 7,
-        date: "2026-08-09",
-        amount: 1200,
-        note: "Partial payment — remainder due"
-    },
-    // 8 — full, on time
-    {
-        propertyId: 8,
-        date: "2026-06-01",
-        amount: 2750,
-        note: "Full payment"
-    },
-    {
-        propertyId: 8,
-        date: "2026-07-01",
-        amount: 2750,
-        note: "Full payment"
-    },
-    {
-        propertyId: 8,
-        date: "2026-08-01",
-        amount: 2750,
-        note: "Full payment"
-    },
-    // 9 — full, on time
-    {
-        propertyId: 9,
-        date: "2026-06-03",
-        amount: 1840,
-        note: "Full payment"
-    },
-    {
-        propertyId: 9,
-        date: "2026-07-03",
-        amount: 1840,
-        note: "Full payment"
-    },
-    {
-        propertyId: 9,
-        date: "2026-08-03",
-        amount: 1840,
-        note: "Full payment"
-    },
-    // 10 — missed July entirely, partial in August
-    {
-        propertyId: 10,
-        date: "2026-06-05",
-        amount: 2380,
-        note: "Full payment"
-    },
-    {
-        propertyId: 10,
-        date: "2026-08-12",
-        amount: 900,
-        note: "Partial payment"
-    }
-];
-function genPayments() {
-    let id = 500;
-    return SEED_PAYMENTS.map((p)=>({
-            id: id++,
-            type: "payment",
-            ...p
-        }));
-}
-const SEED_LEDGER = [
-    ...genCharges(),
-    ...genPayments()
-];
+// No transaction history was in the source sheet (it's an annual summary,
+// not a payment log) — starting clean rather than inventing a fake history.
+const SEED_LEDGER = [];
+// License fees were the one clearly recurring cost that didn't fit the
+// Reserves categories (Property Tax / Insurance / HOA / Other) — logged
+// here as a single representative annual entry per property.
 const SEED_EXPENSES = [
     {
         id: 1,
-        propertyId: 1,
-        category: "Maintenance",
-        amount: 240,
-        date: "2026-08-03",
-        note: "HVAC filter service"
+        propertyId: 2,
+        category: "Other",
+        amount: 93.85,
+        date: "2025-01-01",
+        note: "Rental license fee"
     },
     {
         id: 2,
-        propertyId: 4,
-        category: "Insurance",
-        amount: 610,
-        date: "2026-08-05",
-        note: "Annual premium"
+        propertyId: 5,
+        category: "Other",
+        amount: 126.5,
+        date: "2025-01-01",
+        note: "Rental license fee"
     },
     {
         id: 3,
-        propertyId: 5,
-        category: "Repairs",
-        amount: 890,
-        date: "2026-08-11",
-        note: "Water heater replacement"
+        propertyId: 6,
+        category: "Other",
+        amount: 126.5,
+        date: "2025-01-01",
+        note: "Rental license fee"
     },
     {
         id: 4,
-        propertyId: 8,
-        category: "Property Tax",
-        amount: 1450,
-        date: "2026-08-14",
-        note: "Q3 installment"
+        propertyId: 7,
+        category: "Other",
+        amount: 93.85,
+        date: "2025-01-01",
+        note: "Rental license fee"
     },
     {
         id: 5,
-        propertyId: 3,
-        category: "Maintenance",
-        amount: 180,
-        date: "2026-08-18",
-        note: "Gutter cleaning"
+        propertyId: 8,
+        category: "Other",
+        amount: 140,
+        date: "2025-01-01",
+        note: "Rental license fee"
     },
     {
         id: 6,
+        propertyId: 9,
+        category: "Other",
+        amount: 65,
+        date: "2025-01-01",
+        note: "Rental license fee"
+    },
+    {
+        id: 7,
         propertyId: 10,
-        category: "Legal",
-        amount: 320,
-        date: "2026-08-20",
-        note: "Lease renewal review"
+        category: "Other",
+        amount: 93.85,
+        date: "2025-01-01",
+        note: "Rental license fee"
     }
 ];
 const CATEGORIES = [
@@ -544,406 +359,278 @@ const UTILITY_TYPES = [
     "Trash",
     "Internet"
 ];
-// utility accounts per property — kept here for continuity across tenant turnover
-const SEED_UTILITIES = {
-    1: [
-        {
-            id: 1,
-            type: "Electric",
-            provider: "Pepco",
-            account: "6104-882-1130",
-            payer: "Tenant"
-        },
-        {
-            id: 2,
-            type: "Water/Sewer",
-            provider: "WSSC Water",
-            account: "WS-44219",
-            payer: "Landlord"
-        },
-        {
-            id: 3,
-            type: "Trash",
-            provider: "Montgomery County DEP",
-            account: "MC-77410",
-            payer: "Landlord"
-        }
-    ],
-    2: [
-        {
-            id: 1,
-            type: "Electric",
-            provider: "Pepco",
-            account: "6104-772-9012",
-            payer: "Tenant"
-        },
-        {
-            id: 2,
-            type: "Gas",
-            provider: "Washington Gas",
-            account: "WG-55821",
-            payer: "Tenant"
-        },
-        {
-            id: 3,
-            type: "Water/Sewer",
-            provider: "WSSC Water",
-            account: "WS-19087",
-            payer: "Landlord"
-        }
-    ],
-    3: [
-        {
-            id: 1,
-            type: "Electric",
-            provider: "Pepco",
-            account: "6104-341-7723",
-            payer: "Tenant"
-        },
-        {
-            id: 2,
-            type: "Water/Sewer",
-            provider: "WSSC Water",
-            account: "WS-30945",
-            payer: "Landlord"
-        }
-    ],
-    4: [
-        {
-            id: 1,
-            type: "Electric",
-            provider: "Pepco",
-            account: "6104-990-2287",
-            payer: "Tenant"
-        },
-        {
-            id: 2,
-            type: "Gas",
-            provider: "Washington Gas",
-            account: "WG-11238",
-            payer: "Tenant"
-        },
-        {
-            id: 3,
-            type: "Water/Sewer",
-            provider: "WSSC Water",
-            account: "WS-58821",
-            payer: "Landlord"
-        },
-        {
-            id: 4,
-            type: "Trash",
-            provider: "Montgomery County DEP",
-            account: "MC-20194",
-            payer: "Landlord"
-        }
-    ],
-    5: [
-        {
-            id: 1,
-            type: "Electric",
-            provider: "Pepco",
-            account: "6104-118-6634",
-            payer: "Tenant"
-        },
-        {
-            id: 2,
-            type: "Water/Sewer",
-            provider: "WSSC Water",
-            account: "WS-77201",
-            payer: "Landlord"
-        }
-    ],
-    6: [
-        {
-            id: 1,
-            type: "Electric",
-            provider: "Pepco",
-            account: "6104-556-3391",
-            payer: "Tenant"
-        },
-        {
-            id: 2,
-            type: "Water/Sewer",
-            provider: "WSSC Water",
-            account: "WS-40218",
-            payer: "Landlord"
-        },
-        {
-            id: 3,
-            type: "Internet",
-            provider: "Xfinity",
-            account: "XF-90271",
-            payer: "Tenant"
-        }
-    ],
-    7: [
-        {
-            id: 1,
-            type: "Electric",
-            provider: "Pepco",
-            account: "6104-227-8850",
-            payer: "Tenant"
-        },
-        {
-            id: 2,
-            type: "Water/Sewer",
-            provider: "WSSC Water",
-            account: "WS-63317",
-            payer: "Landlord"
-        }
-    ],
-    8: [
-        {
-            id: 1,
-            type: "Electric",
-            provider: "Pepco",
-            account: "6104-664-1128",
-            payer: "Tenant"
-        },
-        {
-            id: 2,
-            type: "Gas",
-            provider: "Washington Gas",
-            account: "WG-77043",
-            payer: "Tenant"
-        },
-        {
-            id: 3,
-            type: "Water/Sewer",
-            provider: "WSSC Water",
-            account: "WS-88512",
-            payer: "Landlord"
-        },
-        {
-            id: 4,
-            type: "Trash",
-            provider: "Montgomery County DEP",
-            account: "MC-33087",
-            payer: "Landlord"
-        }
-    ],
-    9: [
-        {
-            id: 1,
-            type: "Electric",
-            provider: "Pepco",
-            account: "6104-449-2761",
-            payer: "Tenant"
-        },
-        {
-            id: 2,
-            type: "Water/Sewer",
-            provider: "WSSC Water",
-            account: "WS-25610",
-            payer: "Landlord"
-        }
-    ],
-    10: [
-        {
-            id: 1,
-            type: "Electric",
-            provider: "Pepco",
-            account: "6104-803-5514",
-            payer: "Tenant"
-        },
-        {
-            id: 2,
-            type: "Gas",
-            provider: "Washington Gas",
-            account: "WG-38820",
-            payer: "Tenant"
-        },
-        {
-            id: 3,
-            type: "Water/Sewer",
-            provider: "WSSC Water",
-            account: "WS-91274",
-            payer: "Landlord"
-        }
-    ]
-};
+// no utility account numbers were in the source sheet
+const SEED_UTILITIES = {};
 const ESCROW_CATEGORIES = [
     "Property Tax",
     "Insurance",
     "HOA",
     "Other"
 ];
-// escrow-style reserves: small monthly contributions build up a balance,
-// then a disbursement draws it down when the actual bill comes due
+// monthly rates from the source sheet, logged as one reference contribution
+// per category per property (not a full contribution history — just the
+// known current rate to start from). Two rows (#1, #3) had ambiguous
+// columns after Insurance — logged as "Other" with a note rather than
+// guessing which was HOA vs Property Tax.
 const SEED_ESCROW = {
     1: [
         {
             id: 1,
             type: "contribution",
-            category: "Property Tax",
-            amount: 310,
-            date: "2026-06-01",
-            note: "Monthly set-aside"
+            category: "Insurance",
+            amount: 23.4,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
         },
         {
             id: 2,
             type: "contribution",
-            category: "Property Tax",
-            amount: 310,
-            date: "2026-07-01",
-            note: "Monthly set-aside"
+            category: "Other",
+            amount: 465.7,
+            date: "2025-01-01",
+            note: "HOA + Property Tax combined (~$204 + $261.70) — source columns unclear, please split"
+        }
+    ],
+    2: [
+        {
+            id: 1,
+            type: "contribution",
+            category: "Insurance",
+            amount: 32.49,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        },
+        {
+            id: 2,
+            type: "contribution",
+            category: "HOA",
+            amount: 372.73,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
         },
         {
             id: 3,
             type: "contribution",
             category: "Property Tax",
-            amount: 310,
-            date: "2026-08-01",
-            note: "Monthly set-aside"
+            amount: 251.84,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
         },
         {
             id: 4,
             type: "contribution",
-            category: "Insurance",
-            amount: 95,
-            date: "2026-06-01",
-            note: "Monthly set-aside"
-        },
+            category: "Other",
+            amount: 43.77,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        }
+    ],
+    3: [
         {
-            id: 5,
+            id: 1,
             type: "contribution",
             category: "Insurance",
-            amount: 95,
-            date: "2026-07-01",
-            note: "Monthly set-aside"
+            amount: 28.1,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
         },
         {
-            id: 6,
+            id: 2,
             type: "contribution",
-            category: "Insurance",
-            amount: 95,
-            date: "2026-08-01",
-            note: "Monthly set-aside"
+            category: "Other",
+            amount: 586.39,
+            date: "2025-01-01",
+            note: "HOA + Property Tax combined (~$365 + $221.39) — source columns unclear, please split"
         }
     ],
     4: [
         {
             id: 1,
             type: "contribution",
-            category: "Property Tax",
-            amount: 365,
-            date: "2026-06-01",
-            note: "Monthly set-aside"
+            category: "Insurance",
+            amount: 63.98,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
         },
         {
             id: 2,
             type: "contribution",
-            category: "Property Tax",
-            amount: 365,
-            date: "2026-07-01",
-            note: "Monthly set-aside"
+            category: "HOA",
+            amount: 50,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
         },
         {
             id: 3,
             type: "contribution",
             category: "Property Tax",
-            amount: 365,
-            date: "2026-08-01",
-            note: "Monthly set-aside"
+            amount: 273.58,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        }
+    ],
+    5: [
+        {
+            id: 1,
+            type: "contribution",
+            category: "Insurance",
+            amount: 60.91,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        },
+        {
+            id: 2,
+            type: "contribution",
+            category: "HOA",
+            amount: 340,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        },
+        {
+            id: 3,
+            type: "contribution",
+            category: "Property Tax",
+            amount: 235.85,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        }
+    ],
+    6: [
+        {
+            id: 1,
+            type: "contribution",
+            category: "Insurance",
+            amount: 37.58,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        },
+        {
+            id: 2,
+            type: "contribution",
+            category: "HOA",
+            amount: 340,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        },
+        {
+            id: 3,
+            type: "contribution",
+            category: "Property Tax",
+            amount: 235.67,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        }
+    ],
+    7: [
+        {
+            id: 1,
+            type: "contribution",
+            category: "Insurance",
+            amount: 35.93,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        },
+        {
+            id: 2,
+            type: "contribution",
+            category: "HOA",
+            amount: 380.23,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        },
+        {
+            id: 3,
+            type: "contribution",
+            category: "Property Tax",
+            amount: 198.32,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
         },
         {
             id: 4,
-            type: "disbursement",
-            category: "Property Tax",
-            amount: 1450,
-            date: "2026-07-15",
-            note: "Semi-annual county tax bill"
-        },
-        {
-            id: 5,
             type: "contribution",
-            category: "HOA",
-            amount: 210,
-            date: "2026-06-01",
-            note: "Monthly set-aside"
-        },
-        {
-            id: 6,
-            type: "contribution",
-            category: "HOA",
-            amount: 210,
-            date: "2026-07-01",
-            note: "Monthly set-aside"
-        },
-        {
-            id: 7,
-            type: "contribution",
-            category: "HOA",
-            amount: 210,
-            date: "2026-08-01",
-            note: "Monthly set-aside"
-        },
-        {
-            id: 8,
-            type: "disbursement",
-            category: "HOA",
-            amount: 630,
-            date: "2026-08-01",
-            note: "Quarterly HOA invoice"
+            category: "Other",
+            amount: 45.22,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
         }
     ],
     8: [
         {
             id: 1,
             type: "contribution",
-            category: "Property Tax",
-            amount: 380,
-            date: "2026-06-01",
-            note: "Monthly set-aside"
+            category: "Insurance",
+            amount: 228.5,
+            date: "2025-01-01",
+            note: "Escrowed with mortgage — per source sheet note"
         },
         {
             id: 2,
             type: "contribution",
             category: "Property Tax",
-            amount: 380,
-            date: "2026-07-01",
-            note: "Monthly set-aside"
+            amount: 656.98,
+            date: "2025-01-01",
+            note: "Escrowed with mortgage — per source sheet note"
+        }
+    ],
+    9: [
+        {
+            id: 1,
+            type: "contribution",
+            category: "Insurance",
+            amount: 25.75,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        },
+        {
+            id: 2,
+            type: "contribution",
+            category: "HOA",
+            amount: 322.76,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
         },
         {
             id: 3,
             type: "contribution",
             category: "Property Tax",
-            amount: 380,
-            date: "2026-08-01",
-            note: "Monthly set-aside"
+            amount: 209.85,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        }
+    ],
+    10: [
+        {
+            id: 1,
+            type: "contribution",
+            category: "Insurance",
+            amount: 34.41,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        },
+        {
+            id: 2,
+            type: "contribution",
+            category: "HOA",
+            amount: 405.76,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
+        },
+        {
+            id: 3,
+            type: "contribution",
+            category: "Property Tax",
+            amount: 252.85,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
         },
         {
             id: 4,
-            type: "disbursement",
-            category: "Property Tax",
-            amount: 1450,
-            date: "2026-08-14",
-            note: "Semi-annual county tax bill"
-        },
-        {
-            id: 5,
             type: "contribution",
-            category: "Insurance",
-            amount: 110,
-            date: "2026-06-01",
-            note: "Monthly set-aside"
-        },
-        {
-            id: 6,
-            type: "contribution",
-            category: "Insurance",
-            amount: 110,
-            date: "2026-07-01",
-            note: "Monthly set-aside"
-        },
-        {
-            id: 7,
-            type: "contribution",
-            category: "Insurance",
-            amount: 110,
-            date: "2026-08-01",
-            note: "Monthly set-aside"
+            category: "Other",
+            amount: 43.77,
+            date: "2025-01-01",
+            note: "Monthly rate per source sheet"
         }
     ]
 };
@@ -954,57 +641,68 @@ const DEFAULT_MORTGAGE = {
     balance: "",
     monthlyPayment: ""
 };
-// mortgage details per property — unchecked properties are owned free and clear
+// monthly P&I from the source sheet. Lender, rate, and loan balance weren't
+// in the sheet — left blank for you to fill in on each property's ledger page.
 const SEED_MORTGAGES = {
     2: {
         hasMortgage: true,
-        lender: "Chase",
-        rate: "6.25",
-        balance: "312000",
-        monthlyPayment: "2150"
+        lender: "",
+        rate: "",
+        balance: "",
+        monthlyPayment: "1399.17"
     },
-    3: {
+    4: {
         hasMortgage: true,
-        lender: "Wells Fargo",
-        rate: "6.75",
-        balance: "298000",
-        monthlyPayment: "2080"
+        lender: "",
+        rate: "",
+        balance: "",
+        monthlyPayment: "1587.44"
     },
     5: {
         hasMortgage: true,
-        lender: "Rocket Mortgage",
-        rate: "7.10",
-        balance: "245000",
-        monthlyPayment: "1890"
+        lender: "",
+        rate: "",
+        balance: "",
+        monthlyPayment: "1113.24"
+    },
+    6: {
+        hasMortgage: true,
+        lender: "",
+        rate: "",
+        balance: "",
+        monthlyPayment: "1185.56"
     },
     7: {
         hasMortgage: true,
-        lender: "Chase",
-        rate: "6.40",
-        balance: "276000",
-        monthlyPayment: "1975"
+        lender: "",
+        rate: "",
+        balance: "",
+        monthlyPayment: "1000.00"
+    },
+    8: {
+        hasMortgage: true,
+        lender: "",
+        rate: "",
+        balance: "",
+        monthlyPayment: "1974.52"
+    },
+    9: {
+        hasMortgage: true,
+        lender: "",
+        rate: "",
+        balance: "",
+        monthlyPayment: "980.37"
     },
     10: {
         hasMortgage: true,
-        lender: "US Bank",
-        rate: "6.90",
-        balance: "301000",
-        monthlyPayment: "2210"
+        lender: "",
+        rate: "",
+        balance: "",
+        monthlyPayment: "1064.00"
     }
 };
-// estimated current market value per property, entered/updated manually (e.g. from an appraisal, a Zestimate, or your own judgment)
-const SEED_MARKET_VALUES = {
-    1: 480000,
-    2: 395000,
-    3: 420000,
-    4: 545000,
-    5: 365000,
-    6: 445000,
-    7: 398000,
-    8: 560000,
-    9: 372000,
-    10: 470000
-};
+// no market values were in the source sheet — add these on each property's ledger page
+const SEED_MARKET_VALUES = {};
 const money = (n)=>n.toLocaleString("en-US", {
         style: "currency",
         currency: "USD",
@@ -1307,6 +1005,41 @@ function nextDueDate(dateStr, recurrence) {
     else if (recurrence === "semi_annual") d.setMonth(d.getMonth() + 6);
     else d.setFullYear(d.getFullYear() + 1); // default annual
     return d.toISOString().slice(0, 10);
+}
+// tiered lease-expiration reminder: flags at 90, 60, and 30 days out, then overdue once past end date
+function leaseUrgency(leaseEnd) {
+    if (!leaseEnd) return null;
+    const d = daysUntil(leaseEnd);
+    if (d < 0) return {
+        label: `Lease expired ${Math.abs(d)}d ago`,
+        bg: T.brickSoft,
+        fg: T.brick,
+        tier: "expired"
+    };
+    if (d <= 30) return {
+        label: `Lease expires in ${d}d`,
+        bg: T.brickSoft,
+        fg: T.brick,
+        tier: "30"
+    };
+    if (d <= 60) return {
+        label: `Lease expires in ${d}d`,
+        bg: T.amberSoft,
+        fg: "#8A6A2F",
+        tier: "60"
+    };
+    if (d <= 90) return {
+        label: `Lease expires in ${d}d`,
+        bg: T.amberSoft,
+        fg: "#8A6A2F",
+        tier: "90"
+    };
+    return {
+        label: `Lease renews/expires ${leaseEnd}`,
+        bg: T.pineSoft,
+        fg: T.pine,
+        tier: "ok"
+    };
 }
 function statusFor(balance, rent) {
     if (balance <= 0) return {
@@ -1797,6 +1530,10 @@ function PortfolioDashboard() {
         const netPortfolioValue = marketValueTotal - mortgageDebt;
         const net = collectedAugust - expenseTotal - debtService;
         const complianceDueSoon = compliance.filter((c)=>c.status !== "completed" && daysUntil(c.dueDate) <= 30).length;
+        const leasesExpiringSoon = properties.filter((p)=>{
+            const lu = leaseUrgency(p.leaseEnd);
+            return lu && lu.tier !== "ok";
+        }).length;
         return {
             rentRoll,
             collectedAugust,
@@ -1808,7 +1545,8 @@ function PortfolioDashboard() {
             mortgageDebt,
             marketValueTotal,
             netPortfolioValue,
-            complianceDueSoon
+            complianceDueSoon,
+            leasesExpiringSoon
         };
     }, [
         properties,
@@ -1899,7 +1637,7 @@ function PortfolioDashboard() {
                 children: FONTS
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 746,
+                lineNumber: 683,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("header", {
@@ -1917,7 +1655,7 @@ function PortfolioDashboard() {
                                 children: "Cinnity Realty"
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 750,
+                                lineNumber: 687,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1929,13 +1667,13 @@ function PortfolioDashboard() {
                                 children: "Property Portfolio"
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 753,
+                                lineNumber: 690,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 749,
+                        lineNumber: 686,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1953,20 +1691,20 @@ function PortfolioDashboard() {
                                 children: "Save failed — check connection"
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 758,
+                                lineNumber: 695,
                                 columnNumber: 38
                             }, this),
                             saveStatus === "idle" && loaded && "Data loaded"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 755,
+                        lineNumber: 692,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 748,
+                lineNumber: 685,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1984,20 +1722,20 @@ function PortfolioDashboard() {
                                         size: 16
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 769,
+                                        lineNumber: 706,
                                         columnNumber: 17
                                     }, this),
                                     label
                                 ]
                             }, id, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 768,
+                                lineNumber: 705,
                                 columnNumber: 15
                             }, this);
                         })
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 764,
+                        lineNumber: 701,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("main", {
@@ -2013,7 +1751,7 @@ function PortfolioDashboard() {
                                 }
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 777,
+                                lineNumber: 714,
                                 columnNumber: 34
                             }, this),
                             tab === "snapshot" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Snapshot, {
@@ -2032,7 +1770,7 @@ function PortfolioDashboard() {
                                 }
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 779,
+                                lineNumber: 716,
                                 columnNumber: 13
                             }, this),
                             tab === "properties" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Properties, {
@@ -2051,7 +1789,7 @@ function PortfolioDashboard() {
                                 setNewPropertyForm: setNewPropertyForm
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 792,
+                                lineNumber: 729,
                                 columnNumber: 36
                             }, this),
                             tab === "ledgers" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Ledgers, {
@@ -2079,13 +1817,14 @@ function PortfolioDashboard() {
                                 updateMarketValue: updateMarketValue,
                                 expenses: expenses,
                                 equipment: equipment,
+                                updateProperty: updateProperty,
                                 equipmentForm: equipmentForm,
                                 setEquipmentForm: setEquipmentForm,
                                 addEquipment: addEquipment,
                                 removeEquipment: removeEquipment
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 794,
+                                lineNumber: 731,
                                 columnNumber: 13
                             }, this),
                             tab === "maintenance" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Maintenance, {
@@ -2100,7 +1839,7 @@ function PortfolioDashboard() {
                                 removeMaintenance: removeMaintenance
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 826,
+                                lineNumber: 764,
                                 columnNumber: 13
                             }, this),
                             tab === "providers" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Providers, {
@@ -2111,7 +1850,7 @@ function PortfolioDashboard() {
                                 removeProvider: removeProvider
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 839,
+                                lineNumber: 777,
                                 columnNumber: 13
                             }, this),
                             tab === "compliance" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Compliance, {
@@ -2124,7 +1863,7 @@ function PortfolioDashboard() {
                                 removeCompliance: removeCompliance
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 842,
+                                lineNumber: 780,
                                 columnNumber: 13
                             }, this),
                             tab === "expenses" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Expenses, {
@@ -2136,7 +1875,7 @@ function PortfolioDashboard() {
                                 removeExpense: removeExpense
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 853,
+                                lineNumber: 791,
                                 columnNumber: 13
                             }, this),
                             tab === "reports" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(Reports, {
@@ -2145,25 +1884,25 @@ function PortfolioDashboard() {
                                 stats: stats
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 855,
+                                lineNumber: 793,
                                 columnNumber: 33
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 776,
+                        lineNumber: 713,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 763,
+                lineNumber: 700,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 745,
+        lineNumber: 682,
         columnNumber: 5
     }, this);
 }
@@ -2189,7 +1928,7 @@ function KpiCard({ label, value, tone = "ink" }) {
                 children: label
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 866,
+                lineNumber: 804,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2203,13 +1942,13 @@ function KpiCard({ label, value, tone = "ink" }) {
                 children: value
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 867,
+                lineNumber: 805,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 865,
+        lineNumber: 803,
         columnNumber: 5
     }, this);
 }
@@ -2227,7 +1966,7 @@ function MiniStat({ label, value, tone = "ink", small = false }) {
                 children: label
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 876,
+                lineNumber: 814,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2241,13 +1980,13 @@ function MiniStat({ label, value, tone = "ink", small = false }) {
                 children: value
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 877,
+                lineNumber: 815,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 875,
+        lineNumber: 813,
         columnNumber: 5
     }, this);
 }
@@ -2266,7 +2005,7 @@ function SectionTitle({ title, subtitle }) {
                 children: title
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 885,
+                lineNumber: 823,
                 columnNumber: 7
             }, this),
             subtitle && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2278,13 +2017,13 @@ function SectionTitle({ title, subtitle }) {
                 children: subtitle
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 886,
+                lineNumber: 824,
                 columnNumber: 20
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 884,
+        lineNumber: 822,
         columnNumber: 5
     }, this);
 }
@@ -2296,7 +2035,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                 subtitle: "Net cash flow includes mortgage debt service"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 894,
+                lineNumber: 832,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2312,7 +2051,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                         value: money(stats.rentRoll)
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 896,
+                        lineNumber: 834,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2321,7 +2060,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                         tone: "pine"
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 897,
+                        lineNumber: 835,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2330,7 +2069,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                         tone: "brick"
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 898,
+                        lineNumber: 836,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2338,7 +2077,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                         value: money(stats.expenseTotal)
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 899,
+                        lineNumber: 837,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2346,7 +2085,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                         value: money(stats.debtService)
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 900,
+                        lineNumber: 838,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2355,7 +2094,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                         tone: stats.net >= 0 ? "pine" : "brick"
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 901,
+                        lineNumber: 839,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2363,13 +2102,13 @@ function Overview({ stats, properties, balances, goToLedger }) {
                         value: money(stats.reservesHeld)
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 902,
+                        lineNumber: 840,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 895,
+                lineNumber: 833,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionTitle, {
@@ -2377,7 +2116,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                 subtitle: "What the properties are worth, minus what's owed on them"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 905,
+                lineNumber: 843,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2393,7 +2132,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                         value: money(stats.marketValueTotal)
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 907,
+                        lineNumber: 845,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2402,7 +2141,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                         tone: "brick"
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 908,
+                        lineNumber: 846,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2411,7 +2150,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                         tone: "pine"
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 909,
+                        lineNumber: 847,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2420,13 +2159,22 @@ function Overview({ stats, properties, balances, goToLedger }) {
                         tone: stats.complianceDueSoon > 0 ? "brick" : "ink"
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 910,
+                        lineNumber: 848,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
+                        label: "Leases expiring ≤90d",
+                        value: String(stats.leasesExpiringSoon),
+                        tone: stats.leasesExpiringSoon > 0 ? "brick" : "ink"
+                    }, void 0, false, {
+                        fileName: "[project]/components/PortfolioDashboard.jsx",
+                        lineNumber: 849,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 906,
+                lineNumber: 844,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionTitle, {
@@ -2434,7 +2182,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                 subtitle: "Click a property to open its ledger"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 913,
+                lineNumber: 852,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2476,7 +2224,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                                         color: T.inkSoft
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 924,
+                                        lineNumber: 863,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2486,7 +2234,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
                                         children: p.name
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 925,
+                                        lineNumber: 864,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2497,13 +2245,13 @@ function Overview({ stats, properties, balances, goToLedger }) {
                                         children: p.tenant
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 926,
+                                        lineNumber: 865,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 923,
+                                lineNumber: 862,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2518,25 +2266,25 @@ function Overview({ stats, properties, balances, goToLedger }) {
                                 children: s.label
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 928,
+                                lineNumber: 867,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, p.id, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 918,
+                        lineNumber: 857,
                         columnNumber: 13
                     }, this);
                 })
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 914,
+                lineNumber: 853,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 893,
+        lineNumber: 831,
         columnNumber: 5
     }, this);
 }
@@ -2549,6 +2297,10 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                 age: equipmentAgeYears(eq.installDate)
             })).filter((eq)=>eq.age >= eq.lifespan - 2));
     const openMaintenance = maintenance.filter((m)=>m.status === "scheduled" || m.status === "in_progress");
+    const leasesNeedingAttention = properties.map((p)=>({
+            property: p,
+            urgency: leaseUrgency(p.leaseEnd)
+        })).filter((x)=>x.urgency && x.urgency.tier !== "ok");
     const propertyName = (id)=>properties.find((p)=>p.id === id)?.name || "—";
     const performanceRows = properties.map((p)=>({
             property: p,
@@ -2566,7 +2318,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                 subtitle: "Pulled together from ledgers, expenses, mortgages, valuations, maintenance, and compliance"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 956,
+                lineNumber: 898,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2583,7 +2335,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                         tone: "pine"
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 958,
+                        lineNumber: 900,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2591,7 +2343,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                         value: money(stats.marketValueTotal - stats.mortgageDebt)
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 959,
+                        lineNumber: 901,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2600,7 +2352,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                         tone: stats.net >= 0 ? "pine" : "brick"
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 960,
+                        lineNumber: 902,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2608,7 +2360,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                         value: money(stats.rentRoll)
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 961,
+                        lineNumber: 903,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(KpiCard, {
@@ -2616,21 +2368,21 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                         value: money(stats.reservesHeld)
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 962,
+                        lineNumber: 904,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 957,
+                lineNumber: 899,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionTitle, {
                 title: "Needs attention",
-                subtitle: "Compliance overdue or due soon, equipment nearing end of life, open maintenance"
+                subtitle: "Leases expiring soon, compliance overdue or due soon, equipment nearing end of life, open maintenance"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 965,
+                lineNumber: 907,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2641,6 +2393,16 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                     marginBottom: 28
                 },
                 children: [
+                    leasesNeedingAttention.map(({ property, urgency })=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AttentionRow, {
+                            icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$scroll$2d$text$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__ScrollText$3e$__["ScrollText"],
+                            tone: urgency.tier === "expired" || urgency.tier === "30" ? "brick" : "amber",
+                            label: `Lease — ${property.name}`,
+                            detail: urgency.label
+                        }, `l-${property.id}`, false, {
+                            fileName: "[project]/components/PortfolioDashboard.jsx",
+                            lineNumber: 910,
+                            columnNumber: 11
+                        }, this)),
                     overdueCompliance.map((c)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AttentionRow, {
                             icon: __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$lucide$2d$react$2f$dist$2f$esm$2f$icons$2f$triangle$2d$alert$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__$3c$export__default__as__AlertTriangle$3e$__["AlertTriangle"],
                             tone: "brick",
@@ -2648,7 +2410,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                             detail: `Was due ${c.dueDate}`
                         }, `c-${c.id}`, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 968,
+                            lineNumber: 913,
                             columnNumber: 11
                         }, this)),
                     dueSoonCompliance.map((c)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AttentionRow, {
@@ -2658,7 +2420,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                             detail: `Due ${c.dueDate}`
                         }, `cs-${c.id}`, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 971,
+                            lineNumber: 916,
                             columnNumber: 11
                         }, this)),
                     equipmentNeedingReplacement.map((eq)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AttentionRow, {
@@ -2668,7 +2430,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                             detail: `${eq.age.toFixed(1)} of ${eq.lifespan} expected years`
                         }, `e-${eq.id}-${eq.propertyName}`, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 974,
+                            lineNumber: 919,
                             columnNumber: 11
                         }, this)),
                     openMaintenance.map((m)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(AttentionRow, {
@@ -2678,10 +2440,10 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                             detail: `${m.status === "in_progress" ? "In progress" : "Scheduled"} for ${m.scheduledDate}`
                         }, `m-${m.id}`, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 977,
+                            lineNumber: 922,
                             columnNumber: 11
                         }, this)),
-                    overdueCompliance.length + dueSoonCompliance.length + equipmentNeedingReplacement.length + openMaintenance.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    leasesNeedingAttention.length + overdueCompliance.length + dueSoonCompliance.length + equipmentNeedingReplacement.length + openMaintenance.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                         style: {
                             color: T.inkSoft,
                             fontStyle: "italic"
@@ -2689,13 +2451,13 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                         children: "Nothing needs attention right now."
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 980,
+                        lineNumber: 925,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 966,
+                lineNumber: 908,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionTitle, {
@@ -2703,7 +2465,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                 subtitle: "Click a property to see its full ledger"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 984,
+                lineNumber: 929,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2746,17 +2508,17 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                                         children: h
                                     }, h, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 990,
+                                        lineNumber: 935,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 988,
+                                lineNumber: 933,
                                 columnNumber: 11
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 987,
+                            lineNumber: 932,
                             columnNumber: 9
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -2776,7 +2538,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                                             children: property.name
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 999,
+                                            lineNumber: 944,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2795,12 +2557,12 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                                                 children: rentStatus.label
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1001,
+                                                lineNumber: 946,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1000,
+                                            lineNumber: 945,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2812,7 +2574,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                                             children: money(perf.marketValue)
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1003,
+                                            lineNumber: 948,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2824,7 +2586,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                                             children: money(perf.equity)
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1004,
+                                            lineNumber: 949,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2837,7 +2599,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                                             children: money(perf.estMonthlyCashFlow)
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1005,
+                                            lineNumber: 950,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2852,7 +2614,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1006,
+                                            lineNumber: 951,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -2867,29 +2629,29 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1007,
+                                            lineNumber: 952,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, property.id, true, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 998,
+                                    lineNumber: 943,
                                     columnNumber: 13
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 996,
+                            lineNumber: 941,
                             columnNumber: 9
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                    lineNumber: 986,
+                    lineNumber: 931,
                     columnNumber: 1
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 985,
+                lineNumber: 930,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2902,13 +2664,13 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
                 children: "Cap rate and yield are estimates based on data on file, not a full-year audited actual."
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1013,
+                lineNumber: 958,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 955,
+        lineNumber: 897,
         columnNumber: 5
     }, this);
 }
@@ -2939,7 +2701,7 @@ function AttentionRow({ icon: Icon, tone, label, detail }) {
                 color: colors[tone]
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1025,
+                lineNumber: 970,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2951,7 +2713,7 @@ function AttentionRow({ icon: Icon, tone, label, detail }) {
                 children: label
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1026,
+                lineNumber: 971,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2963,13 +2725,13 @@ function AttentionRow({ icon: Icon, tone, label, detail }) {
                 children: detail
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1027,
+                lineNumber: 972,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 1024,
+        lineNumber: 969,
         columnNumber: 5
     }, this);
 }
@@ -3000,7 +2762,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                 subtitle: "New properties start with an empty ledger, expenses, and everything else"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1038,
+                lineNumber: 983,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3035,13 +2797,13 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1042,
+                                lineNumber: 987,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1040,
+                        lineNumber: 985,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -3064,13 +2826,13 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1046,
+                                lineNumber: 991,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1044,
+                        lineNumber: 989,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -3094,13 +2856,13 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1050,
+                                lineNumber: 995,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1048,
+                        lineNumber: 993,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -3127,13 +2889,13 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1054,
+                                lineNumber: 999,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1052,
+                        lineNumber: 997,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3157,20 +2919,20 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                 size: 15
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1057,
+                                lineNumber: 1002,
                                 columnNumber: 11
                             }, this),
                             " Add"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1056,
+                        lineNumber: 1001,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1039,
+                lineNumber: 984,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionTitle, {
@@ -3178,7 +2940,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                 subtitle: "Click into any field to edit — changes save automatically"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1061,
+                lineNumber: 1006,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3222,17 +2984,17 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         children: h
                                     }, h, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1067,
+                                        lineNumber: 1012,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1065,
+                                lineNumber: 1010,
                                 columnNumber: 11
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1064,
+                            lineNumber: 1009,
                             columnNumber: 9
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -3262,12 +3024,12 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                                     onBlur: (e)=>e.target.style.border = "1px solid transparent"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1081,
+                                                    lineNumber: 1026,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1080,
+                                                lineNumber: 1025,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3283,12 +3045,12 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                                     onBlur: (e)=>e.target.style.border = "1px solid transparent"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1084,
+                                                    lineNumber: 1029,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1083,
+                                                lineNumber: 1028,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3304,12 +3066,12 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                                     onBlur: (e)=>e.target.style.border = "1px solid transparent"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1087,
+                                                    lineNumber: 1032,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1086,
+                                                lineNumber: 1031,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3329,12 +3091,12 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                                     onBlur: (e)=>e.target.style.border = "1px solid transparent"
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1090,
+                                                    lineNumber: 1035,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1089,
+                                                lineNumber: 1034,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3354,12 +3116,12 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                                     children: s.label
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1093,
+                                                    lineNumber: 1038,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1092,
+                                                lineNumber: 1037,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3379,38 +3141,86 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                                     }
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1096,
+                                                    lineNumber: 1041,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1095,
+                                                lineNumber: 1040,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                 style: {
-                                                    padding: "10px 6px",
-                                                    textAlign: "right",
-                                                    fontFamily: "'IBM Plex Mono', monospace",
-                                                    color: m.hasMortgage ? T.ink : T.inkSoft
+                                                    padding: "4px 4px"
                                                 },
-                                                children: m.hasMortgage ? money(Number(m.balance) || 0) : "—"
+                                                children: m.hasMortgage ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    style: {
+                                                        ...cellInputStyle,
+                                                        textAlign: "right",
+                                                        fontFamily: "'IBM Plex Mono', monospace"
+                                                    },
+                                                    type: "number",
+                                                    placeholder: "0",
+                                                    value: m.balance,
+                                                    onChange: (e)=>updateMortgage(p.id, "balance", e.target.value),
+                                                    onFocus: (e)=>e.target.style.border = `1px solid ${T.line}`,
+                                                    onBlur: (e)=>e.target.style.border = "1px solid transparent"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/PortfolioDashboard.jsx",
+                                                    lineNumber: 1050,
+                                                    columnNumber: 21
+                                                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    style: {
+                                                        textAlign: "right",
+                                                        color: T.inkSoft,
+                                                        padding: "4px 6px"
+                                                    },
+                                                    children: "—"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/PortfolioDashboard.jsx",
+                                                    lineNumber: 1060,
+                                                    columnNumber: 21
+                                                }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1103,
+                                                lineNumber: 1048,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                 style: {
-                                                    padding: "10px 6px",
-                                                    textAlign: "right",
-                                                    fontFamily: "'IBM Plex Mono', monospace",
-                                                    color: m.hasMortgage ? T.ink : T.inkSoft
+                                                    padding: "4px 4px"
                                                 },
-                                                children: m.hasMortgage ? money(Number(m.monthlyPayment) || 0) : "—"
+                                                children: m.hasMortgage ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                    style: {
+                                                        ...cellInputStyle,
+                                                        textAlign: "right",
+                                                        fontFamily: "'IBM Plex Mono', monospace"
+                                                    },
+                                                    type: "number",
+                                                    placeholder: "0",
+                                                    value: m.monthlyPayment,
+                                                    onChange: (e)=>updateMortgage(p.id, "monthlyPayment", e.target.value),
+                                                    onFocus: (e)=>e.target.style.border = `1px solid ${T.line}`,
+                                                    onBlur: (e)=>e.target.style.border = "1px solid transparent"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/PortfolioDashboard.jsx",
+                                                    lineNumber: 1065,
+                                                    columnNumber: 21
+                                                }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                    style: {
+                                                        textAlign: "right",
+                                                        color: T.inkSoft,
+                                                        padding: "4px 6px"
+                                                    },
+                                                    children: "—"
+                                                }, void 0, false, {
+                                                    fileName: "[project]/components/PortfolioDashboard.jsx",
+                                                    lineNumber: 1075,
+                                                    columnNumber: 21
+                                                }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1106,
+                                                lineNumber: 1063,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3435,7 +3245,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                                         children: "View ledger"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1110,
+                                                        lineNumber: 1079,
                                                         columnNumber: 19
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -3453,24 +3263,24 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                                             size: 15
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1117,
+                                                            lineNumber: 1086,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1113,
+                                                        lineNumber: 1082,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1109,
+                                                lineNumber: 1078,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, p.id, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1079,
+                                        lineNumber: 1024,
                                         columnNumber: 15
                                     }, this);
                                 }),
@@ -3485,18 +3295,18 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         children: "No properties yet — add one above."
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1125,
+                                        lineNumber: 1094,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1124,
+                                    lineNumber: 1093,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1073,
+                            lineNumber: 1018,
                             columnNumber: 9
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tfoot", {
@@ -3511,7 +3321,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         children: "Total rent roll"
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1131,
+                                        lineNumber: 1100,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3525,7 +3335,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         children: money(properties.reduce((s, p)=>s + p.rent, 0))
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1132,
+                                        lineNumber: 1101,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3534,7 +3344,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         }
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1135,
+                                        lineNumber: 1104,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3543,7 +3353,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         }
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1136,
+                                        lineNumber: 1105,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3557,7 +3367,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         children: money(properties.reduce((s, p)=>s + (mortgages[p.id]?.hasMortgage ? Number(mortgages[p.id].balance) || 0 : 0), 0))
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1137,
+                                        lineNumber: 1106,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3571,7 +3381,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         children: money(properties.reduce((s, p)=>s + (mortgages[p.id]?.hasMortgage ? Number(mortgages[p.id].monthlyPayment) || 0 : 0), 0))
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1140,
+                                        lineNumber: 1109,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -3580,39 +3390,39 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                                         }
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1143,
+                                        lineNumber: 1112,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1130,
+                                lineNumber: 1099,
                                 columnNumber: 11
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1129,
+                            lineNumber: 1098,
                             columnNumber: 9
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                    lineNumber: 1063,
+                    lineNumber: 1008,
                     columnNumber: 1
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1062,
+                lineNumber: 1007,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 1037,
+        lineNumber: 982,
         columnNumber: 5
     }, this);
 }
-function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form, setForm, addEntry, utilities, utilityForm, setUtilityForm, addUtility, removeUtility, escrow, escrowForm, setEscrowForm, addEscrowEntry, removeEscrowEntry, mortgages, updateMortgage, marketValues, updateMarketValue, expenses, equipment, equipmentForm, setEquipmentForm, addEquipment, removeEquipment }) {
+function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form, setForm, addEntry, utilities, utilityForm, setUtilityForm, addUtility, removeUtility, escrow, escrowForm, setEscrowForm, addEscrowEntry, removeEscrowEntry, mortgages, updateMortgage, marketValues, updateMarketValue, expenses, equipment, equipmentForm, setEquipmentForm, addEquipment, removeEquipment, updateProperty }) {
     const property = properties.find((p)=>p.id === selectedId);
     const perf = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useMemo"])(()=>propertyPerformance(property, {
             marketValues,
@@ -3709,19 +3519,19 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                         ]
                                     }, p.id, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1195,
+                                        lineNumber: 1164,
                                         columnNumber: 17
                                     }, this);
                                 })
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1187,
+                                lineNumber: 1156,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1185,
+                        lineNumber: 1154,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -3737,13 +3547,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                         children: selectedStatus.label
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1202,
+                        lineNumber: 1171,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1184,
+                lineNumber: 1153,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3753,7 +3563,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                         subtitle: `${property.tenant} · rent ${money(property.rent)}/mo`
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1208,
+                        lineNumber: 1177,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3792,13 +3602,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 onChange: (e)=>updateMarketValue(selectedId, e.target.value === "" ? "" : Number(e.target.value))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1214,
+                                                lineNumber: 1183,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1212,
+                                        lineNumber: 1181,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(MiniStat, {
@@ -3806,7 +3616,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                         value: money(perf.loanBalance)
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1222,
+                                        lineNumber: 1191,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(MiniStat, {
@@ -3815,13 +3625,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                         tone: "pine"
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1223,
+                                        lineNumber: 1192,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1211,
+                                lineNumber: 1180,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3839,7 +3649,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                         small: true
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1226,
+                                        lineNumber: 1195,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(MiniStat, {
@@ -3849,7 +3659,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                         small: true
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1227,
+                                        lineNumber: 1196,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(MiniStat, {
@@ -3858,7 +3668,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                         small: true
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1228,
+                                        lineNumber: 1197,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(MiniStat, {
@@ -3867,13 +3677,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                         small: true
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1229,
+                                        lineNumber: 1198,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1225,
+                                lineNumber: 1194,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3886,13 +3696,137 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                 children: "Cap rate is estimated from rent minus expenses logged on file — not a full-year actual."
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1231,
+                                lineNumber: 1200,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1210,
+                        lineNumber: 1179,
+                        columnNumber: 9
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                        style: {
+                            background: T.paper,
+                            border: `1px solid ${T.line}`,
+                            borderRadius: 8,
+                            padding: "12px 16px",
+                            marginBottom: 20
+                        },
+                        children: [
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    display: "flex",
+                                    gap: 18,
+                                    alignItems: "flex-end",
+                                    flexWrap: "wrap"
+                                },
+                                children: [
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                        style: {
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            gap: 4,
+                                            fontSize: 12,
+                                            color: T.inkSoft
+                                        },
+                                        children: [
+                                            "Lease start",
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                style: inputStyle,
+                                                type: "date",
+                                                value: property.leaseStart || "",
+                                                onChange: (e)=>updateProperty(selectedId, "leaseStart", e.target.value)
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/PortfolioDashboard.jsx",
+                                                lineNumber: 1209,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/components/PortfolioDashboard.jsx",
+                                        lineNumber: 1207,
+                                        columnNumber: 13
+                                    }, this),
+                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
+                                        style: {
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            gap: 4,
+                                            fontSize: 12,
+                                            color: T.inkSoft
+                                        },
+                                        children: [
+                                            "Lease end",
+                                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                style: inputStyle,
+                                                type: "date",
+                                                value: property.leaseEnd || "",
+                                                onChange: (e)=>updateProperty(selectedId, "leaseEnd", e.target.value)
+                                            }, void 0, false, {
+                                                fileName: "[project]/components/PortfolioDashboard.jsx",
+                                                lineNumber: 1213,
+                                                columnNumber: 15
+                                            }, this)
+                                        ]
+                                    }, void 0, true, {
+                                        fileName: "[project]/components/PortfolioDashboard.jsx",
+                                        lineNumber: 1211,
+                                        columnNumber: 13
+                                    }, this),
+                                    (()=>{
+                                        const lu = leaseUrgency(property.leaseEnd);
+                                        return lu ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            style: {
+                                                background: lu.bg,
+                                                color: lu.fg,
+                                                fontSize: 12,
+                                                fontWeight: 600,
+                                                padding: "5px 12px",
+                                                borderRadius: 20,
+                                                marginBottom: 2
+                                            },
+                                            children: lu.label
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/PortfolioDashboard.jsx",
+                                            lineNumber: 1218,
+                                            columnNumber: 17
+                                        }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                            style: {
+                                                fontSize: 12,
+                                                color: T.inkSoft,
+                                                marginBottom: 8
+                                            },
+                                            children: "No lease end date on file"
+                                        }, void 0, false, {
+                                            fileName: "[project]/components/PortfolioDashboard.jsx",
+                                            lineNumber: 1220,
+                                            columnNumber: 17
+                                        }, this);
+                                    })()
+                                ]
+                            }, void 0, true, {
+                                fileName: "[project]/components/PortfolioDashboard.jsx",
+                                lineNumber: 1206,
+                                columnNumber: 11
+                            }, this),
+                            /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                style: {
+                                    fontSize: 11,
+                                    color: T.inkSoft,
+                                    marginTop: 10,
+                                    fontStyle: "italic"
+                                },
+                                children: "Flags at 90, 60, and 30 days before lease end, then marks it expired after."
+                            }, void 0, false, {
+                                fileName: "[project]/components/PortfolioDashboard.jsx",
+                                lineNumber: 1224,
+                                columnNumber: 11
+                            }, this)
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/components/PortfolioDashboard.jsx",
+                        lineNumber: 1205,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -3927,7 +3861,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 children: "Payment"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1240,
+                                                lineNumber: 1233,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -3935,19 +3869,19 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 children: "Charge"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1241,
+                                                lineNumber: 1234,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1239,
+                                        lineNumber: 1232,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1237,
+                                lineNumber: 1230,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -3974,13 +3908,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 }))
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1246,
+                                        lineNumber: 1239,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1244,
+                                lineNumber: 1237,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -4003,13 +3937,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 }))
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1250,
+                                        lineNumber: 1243,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1248,
+                                lineNumber: 1241,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -4035,13 +3969,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 }))
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1254,
+                                        lineNumber: 1247,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1252,
+                                lineNumber: 1245,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4065,20 +3999,20 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                         size: 15
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1257,
+                                        lineNumber: 1250,
                                         columnNumber: 13
                                     }, this),
                                     " Post entry"
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1256,
+                                lineNumber: 1249,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1236,
+                        lineNumber: 1229,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4113,17 +4047,17 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 children: h
                                             }, h, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1266,
+                                                lineNumber: 1259,
                                                 columnNumber: 17
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1264,
+                                        lineNumber: 1257,
                                         columnNumber: 13
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1263,
+                                    lineNumber: 1256,
                                     columnNumber: 11
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -4140,7 +4074,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                     children: e.date
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1275,
+                                                    lineNumber: 1268,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4155,12 +4089,12 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: e.type === "charge" ? "Charge" : "Payment"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1277,
+                                                        lineNumber: 1270,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1276,
+                                                    lineNumber: 1269,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4171,7 +4105,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                     children: e.note
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1279,
+                                                    lineNumber: 1272,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4187,7 +4121,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1280,
+                                                    lineNumber: 1273,
                                                     columnNumber: 17
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4200,18 +4134,18 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                     children: money(e.running)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1283,
+                                                    lineNumber: 1276,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, e.id, true, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1274,
+                                            lineNumber: 1267,
                                             columnNumber: 15
                                         }, this))
                                 }, void 0, false, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1272,
+                                    lineNumber: 1265,
                                     columnNumber: 11
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tfoot", {
@@ -4226,7 +4160,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 children: "Current balance"
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1289,
+                                                lineNumber: 1282,
                                                 columnNumber: 15
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4241,29 +4175,29 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 children: money(balances[selectedId])
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1290,
+                                                lineNumber: 1283,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1288,
+                                        lineNumber: 1281,
                                         columnNumber: 13
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1287,
+                                    lineNumber: 1280,
                                     columnNumber: 11
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1262,
+                            lineNumber: 1255,
                             columnNumber: 1
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1261,
+                        lineNumber: 1254,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4276,7 +4210,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                 subtitle: "Kept on file for continuity across tenant turnover"
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1299,
+                                lineNumber: 1292,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4310,18 +4244,18 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: t
                                                     }, t, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1306,
+                                                        lineNumber: 1299,
                                                         columnNumber: 19
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1304,
+                                                lineNumber: 1297,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1302,
+                                        lineNumber: 1295,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -4347,13 +4281,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         }))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1312,
+                                                lineNumber: 1305,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1310,
+                                        lineNumber: 1303,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -4379,13 +4313,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         }))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1316,
+                                                lineNumber: 1309,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1314,
+                                        lineNumber: 1307,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -4411,7 +4345,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: "Tenant"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1321,
+                                                        lineNumber: 1314,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -4419,19 +4353,19 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: "Landlord"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1322,
+                                                        lineNumber: 1315,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1320,
+                                                lineNumber: 1313,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1318,
+                                        lineNumber: 1311,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4455,20 +4389,20 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 size: 15
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1326,
+                                                lineNumber: 1319,
                                                 columnNumber: 15
                                             }, this),
                                             " Add"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1325,
+                                        lineNumber: 1318,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1301,
+                                lineNumber: 1294,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4503,17 +4437,17 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: h
                                                     }, h, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1335,
+                                                        lineNumber: 1328,
                                                         columnNumber: 19
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1333,
+                                                lineNumber: 1326,
                                                 columnNumber: 15
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1332,
+                                            lineNumber: 1325,
                                             columnNumber: 13
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -4531,7 +4465,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 children: u.type
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1344,
+                                                                lineNumber: 1337,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4541,7 +4475,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 children: u.provider
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1345,
+                                                                lineNumber: 1338,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4553,7 +4487,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 children: u.account
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1346,
+                                                                lineNumber: 1339,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4572,12 +4506,12 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                     children: u.payer
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                    lineNumber: 1348,
+                                                                    lineNumber: 1341,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1347,
+                                                                lineNumber: 1340,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4597,23 +4531,23 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                         size: 15
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                        lineNumber: 1354,
+                                                                        lineNumber: 1347,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                    lineNumber: 1353,
+                                                                    lineNumber: 1346,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1352,
+                                                                lineNumber: 1345,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, u.id, true, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1343,
+                                                        lineNumber: 1336,
                                                         columnNumber: 17
                                                     }, this)),
                                                 (!utilities[selectedId] || utilities[selectedId].length === 0) && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -4627,35 +4561,35 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: "No utility accounts on file yet."
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1361,
+                                                        lineNumber: 1354,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1360,
+                                                    lineNumber: 1353,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1341,
+                                            lineNumber: 1334,
                                             columnNumber: 13
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1331,
+                                    lineNumber: 1324,
                                     columnNumber: 1
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1330,
+                                lineNumber: 1323,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1298,
+                        lineNumber: 1291,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4668,7 +4602,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                 subtitle: "Monthly set-asides build a balance; disbursements draw it down when the real bill comes due"
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1370,
+                                lineNumber: 1363,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4703,7 +4637,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: "Contribution"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1376,
+                                                        lineNumber: 1369,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -4711,19 +4645,19 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: "Disbursement"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1377,
+                                                        lineNumber: 1370,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1375,
+                                                lineNumber: 1368,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1373,
+                                        lineNumber: 1366,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -4748,18 +4682,18 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: c
                                                     }, c, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1384,
+                                                        lineNumber: 1377,
                                                         columnNumber: 19
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1382,
+                                                lineNumber: 1375,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1380,
+                                        lineNumber: 1373,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -4786,13 +4720,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         }))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1390,
+                                                lineNumber: 1383,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1388,
+                                        lineNumber: 1381,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -4815,13 +4749,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         }))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1394,
+                                                lineNumber: 1387,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1392,
+                                        lineNumber: 1385,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -4847,13 +4781,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         }))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1398,
+                                                lineNumber: 1391,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1396,
+                                        lineNumber: 1389,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -4877,20 +4811,20 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 size: 15
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1401,
+                                                lineNumber: 1394,
                                                 columnNumber: 15
                                             }, this),
                                             " Post entry"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1400,
+                                        lineNumber: 1393,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1372,
+                                lineNumber: 1365,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -4927,17 +4861,17 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: h
                                                     }, h, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1410,
+                                                        lineNumber: 1403,
                                                         columnNumber: 19
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1408,
+                                                lineNumber: 1401,
                                                 columnNumber: 15
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1407,
+                                            lineNumber: 1400,
                                             columnNumber: 13
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -4955,7 +4889,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 children: e.date
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1419,
+                                                                lineNumber: 1412,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4970,12 +4904,12 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                     children: e.type === "contribution" ? "Contribution" : "Disbursement"
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                    lineNumber: 1421,
+                                                                    lineNumber: 1414,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1420,
+                                                                lineNumber: 1413,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4985,7 +4919,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 children: e.category
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1425,
+                                                                lineNumber: 1418,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -4996,7 +4930,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 children: e.note
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1426,
+                                                                lineNumber: 1419,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -5012,7 +4946,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1427,
+                                                                lineNumber: 1420,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -5025,7 +4959,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 children: money(e.running)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1430,
+                                                                lineNumber: 1423,
                                                                 columnNumber: 19
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -5045,23 +4979,23 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                         size: 15
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                        lineNumber: 1433,
+                                                                        lineNumber: 1426,
                                                                         columnNumber: 23
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                    lineNumber: 1432,
+                                                                    lineNumber: 1425,
                                                                     columnNumber: 21
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1431,
+                                                                lineNumber: 1424,
                                                                 columnNumber: 19
                                                             }, this)
                                                         ]
                                                     }, e.id, true, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1418,
+                                                        lineNumber: 1411,
                                                         columnNumber: 17
                                                     }, this)),
                                                 escrowEntries.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tr", {
@@ -5075,18 +5009,18 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: "No reserve activity logged yet."
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1440,
+                                                        lineNumber: 1433,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1439,
+                                                    lineNumber: 1432,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1416,
+                                            lineNumber: 1409,
                                             columnNumber: 13
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tfoot", {
@@ -5101,7 +5035,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: "Reserve balance on hand"
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1446,
+                                                        lineNumber: 1439,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -5115,7 +5049,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: money(escrowBalance)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1447,
+                                                        lineNumber: 1440,
                                                         columnNumber: 17
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -5124,35 +5058,35 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         }
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1450,
+                                                        lineNumber: 1443,
                                                         columnNumber: 17
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1445,
+                                                lineNumber: 1438,
                                                 columnNumber: 15
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1444,
+                                            lineNumber: 1437,
                                             columnNumber: 13
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1406,
+                                    lineNumber: 1399,
                                     columnNumber: 1
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1405,
+                                lineNumber: 1398,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1369,
+                        lineNumber: 1362,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5165,7 +5099,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                 subtitle: "Kept on file alongside the property record"
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1458,
+                                lineNumber: 1451,
                                 columnNumber: 11
                             }, this),
                             (()=>{
@@ -5194,14 +5128,14 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                     }
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1464,
+                                                    lineNumber: 1457,
                                                     columnNumber: 19
                                                 }, this),
                                                 "This property has a mortgage"
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1463,
+                                            lineNumber: 1456,
                                             columnNumber: 17
                                         }, this),
                                         m.hasMortgage && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5229,13 +5163,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                             onChange: (e)=>updateMortgage(selectedId, "lender", e.target.value)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1477,
+                                                            lineNumber: 1470,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1475,
+                                                    lineNumber: 1468,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -5260,13 +5194,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                             onChange: (e)=>updateMortgage(selectedId, "rate", e.target.value)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1481,
+                                                            lineNumber: 1474,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1479,
+                                                    lineNumber: 1472,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -5290,13 +5224,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                             onChange: (e)=>updateMortgage(selectedId, "balance", e.target.value)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1485,
+                                                            lineNumber: 1478,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1483,
+                                                    lineNumber: 1476,
                                                     columnNumber: 21
                                                 }, this),
                                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -5320,32 +5254,32 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                             onChange: (e)=>updateMortgage(selectedId, "monthlyPayment", e.target.value)
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1489,
+                                                            lineNumber: 1482,
                                                             columnNumber: 23
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1487,
+                                                    lineNumber: 1480,
                                                     columnNumber: 21
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1474,
+                                            lineNumber: 1467,
                                             columnNumber: 19
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1462,
+                                    lineNumber: 1455,
                                     columnNumber: 15
                                 }, this);
                             })()
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1457,
+                        lineNumber: 1450,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5358,7 +5292,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                 subtitle: "Track age against expected lifespan to plan replacements ahead of failure"
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1499,
+                                lineNumber: 1492,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5399,18 +5333,18 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: t
                                                     }, t, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1506,
+                                                        lineNumber: 1499,
                                                         columnNumber: 19
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1504,
+                                                lineNumber: 1497,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1502,
+                                        lineNumber: 1495,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -5436,13 +5370,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         }))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1512,
+                                                lineNumber: 1505,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1510,
+                                        lineNumber: 1503,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -5465,13 +5399,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         }))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1516,
+                                                lineNumber: 1509,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1514,
+                                        lineNumber: 1507,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -5498,13 +5432,13 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         }))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1520,
+                                                lineNumber: 1513,
                                                 columnNumber: 15
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1518,
+                                        lineNumber: 1511,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5528,20 +5462,20 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                 size: 15
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1523,
+                                                lineNumber: 1516,
                                                 columnNumber: 15
                                             }, this),
                                             " Add"
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1522,
+                                        lineNumber: 1515,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1501,
+                                lineNumber: 1494,
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5577,17 +5511,17 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: h
                                                     }, h, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1532,
+                                                        lineNumber: 1525,
                                                         columnNumber: 19
                                                     }, this))
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1530,
+                                                lineNumber: 1523,
                                                 columnNumber: 15
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1529,
+                                            lineNumber: 1522,
                                             columnNumber: 13
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -5608,7 +5542,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 children: eq.type
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1544,
+                                                                lineNumber: 1537,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -5619,7 +5553,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 children: eq.makeModel || "—"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1545,
+                                                                lineNumber: 1538,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -5630,7 +5564,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 children: eq.installDate
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1546,
+                                                                lineNumber: 1539,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -5646,7 +5580,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                 ]
                                                             }, void 0, true, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1547,
+                                                                lineNumber: 1540,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -5670,19 +5604,19 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                             size: 12
                                                                         }, void 0, false, {
                                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                            lineNumber: 1550,
+                                                                            lineNumber: 1543,
                                                                             columnNumber: 63
                                                                         }, this),
                                                                         st.label
                                                                     ]
                                                                 }, void 0, true, {
                                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                    lineNumber: 1549,
+                                                                    lineNumber: 1542,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1548,
+                                                                lineNumber: 1541,
                                                                 columnNumber: 21
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -5702,23 +5636,23 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                                         size: 15
                                                                     }, void 0, false, {
                                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                        lineNumber: 1556,
+                                                                        lineNumber: 1549,
                                                                         columnNumber: 25
                                                                     }, this)
                                                                 }, void 0, false, {
                                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                    lineNumber: 1555,
+                                                                    lineNumber: 1548,
                                                                     columnNumber: 23
                                                                 }, this)
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1554,
+                                                                lineNumber: 1547,
                                                                 columnNumber: 21
                                                             }, this)
                                                         ]
                                                     }, eq.id, true, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1543,
+                                                        lineNumber: 1536,
                                                         columnNumber: 19
                                                     }, this);
                                                 }),
@@ -5733,47 +5667,47 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                                                         children: "No equipment on file yet."
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1564,
+                                                        lineNumber: 1557,
                                                         columnNumber: 19
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1563,
+                                                    lineNumber: 1556,
                                                     columnNumber: 17
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1538,
+                                            lineNumber: 1531,
                                             columnNumber: 13
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1528,
+                                    lineNumber: 1521,
                                     columnNumber: 1
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1527,
+                                lineNumber: 1520,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1498,
+                        lineNumber: 1491,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1207,
+                lineNumber: 1176,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 1183,
+        lineNumber: 1152,
         columnNumber: 5
     }, this);
 }
@@ -5793,7 +5727,7 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                 subtitle: "Plumbers, HVAC techs, electricians, handymen — anyone you call for repairs"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1580,
+                lineNumber: 1573,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5827,13 +5761,13 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1584,
+                                lineNumber: 1577,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1582,
+                        lineNumber: 1575,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -5857,13 +5791,13 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1588,
+                                lineNumber: 1581,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1586,
+                        lineNumber: 1579,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -5886,13 +5820,13 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1592,
+                                lineNumber: 1585,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1590,
+                        lineNumber: 1583,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -5917,13 +5851,13 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1596,
+                                lineNumber: 1589,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1594,
+                        lineNumber: 1587,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -5947,27 +5881,27 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                 size: 15
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1599,
+                                lineNumber: 1592,
                                 columnNumber: 11
                             }, this),
                             " Add"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1598,
+                        lineNumber: 1591,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1581,
+                lineNumber: 1574,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionTitle, {
                 title: "Directory"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1603,
+                lineNumber: 1596,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -5996,7 +5930,7 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                             children: p.name
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1608,
+                                            lineNumber: 1601,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6009,7 +5943,7 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                             children: p.trade
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1609,
+                                            lineNumber: 1602,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6032,7 +5966,7 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                                             size: 13
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1611,
+                                                            lineNumber: 1604,
                                                             columnNumber: 93
                                                         }, this),
                                                         " ",
@@ -6040,7 +5974,7 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1611,
+                                                    lineNumber: 1604,
                                                     columnNumber: 29
                                                 }, this),
                                                 p.email && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -6054,7 +5988,7 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                                             size: 13
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1612,
+                                                            lineNumber: 1605,
                                                             columnNumber: 93
                                                         }, this),
                                                         " ",
@@ -6062,13 +5996,13 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1612,
+                                                    lineNumber: 1605,
                                                     columnNumber: 29
                                                 }, this)
                                             ]
                                         }, void 0, true, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1610,
+                                            lineNumber: 1603,
                                             columnNumber: 15
                                         }, this),
                                         p.notes && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6081,13 +6015,13 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                             children: p.notes
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1614,
+                                            lineNumber: 1607,
                                             columnNumber: 27
                                         }, this)
                                     ]
                                 }, void 0, true, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1607,
+                                    lineNumber: 1600,
                                     columnNumber: 13
                                 }, this),
                                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -6102,18 +6036,18 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                                         size: 15
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1617,
+                                        lineNumber: 1610,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1616,
+                                    lineNumber: 1609,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, p.id, true, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1606,
+                            lineNumber: 1599,
                             columnNumber: 11
                         }, this)),
                     providers.length === 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6124,19 +6058,19 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
                         children: "No providers on file yet."
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1621,
+                        lineNumber: 1614,
                         columnNumber: 36
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1604,
+                lineNumber: 1597,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 1579,
+        lineNumber: 1572,
         columnNumber: 5
     }, this);
 }
@@ -6191,7 +6125,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                 subtitle: "Coordinate across properties, equipment, and providers in one place"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1652,
+                lineNumber: 1645,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6226,18 +6160,18 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                         children: p.name
                                     }, p.id, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1658,
+                                        lineNumber: 1651,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1656,
+                                lineNumber: 1649,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1654,
+                        lineNumber: 1647,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -6263,7 +6197,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                         children: "Not equipment-specific"
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1665,
+                                        lineNumber: 1658,
                                         columnNumber: 13
                                     }, this),
                                     availableEquipment.map((eq)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -6271,19 +6205,19 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                             children: eq.type
                                         }, eq.id, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1667,
+                                            lineNumber: 1660,
                                             columnNumber: 15
                                         }, this))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1664,
+                                lineNumber: 1657,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1662,
+                        lineNumber: 1655,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -6309,7 +6243,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                         children: "Unassigned"
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1674,
+                                        lineNumber: 1667,
                                         columnNumber: 13
                                     }, this),
                                     providers.map((p)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -6317,19 +6251,19 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                             children: p.name
                                         }, p.id, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1676,
+                                            lineNumber: 1669,
                                             columnNumber: 15
                                         }, this))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1673,
+                                lineNumber: 1666,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1671,
+                        lineNumber: 1664,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -6355,13 +6289,13 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1682,
+                                lineNumber: 1675,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1680,
+                        lineNumber: 1673,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -6384,13 +6318,13 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1686,
+                                lineNumber: 1679,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1684,
+                        lineNumber: 1677,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -6416,13 +6350,13 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1690,
+                                lineNumber: 1683,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1688,
+                        lineNumber: 1681,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -6446,20 +6380,20 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                 size: 15
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1693,
+                                lineNumber: 1686,
                                 columnNumber: 11
                             }, this),
                             " Schedule"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1692,
+                        lineNumber: 1685,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1653,
+                lineNumber: 1646,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionTitle, {
@@ -6467,7 +6401,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                 subtitle: "Across the portfolio, upcoming first"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1697,
+                lineNumber: 1690,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6505,17 +6439,17 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                         children: h
                                     }, h, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1703,
+                                        lineNumber: 1696,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1701,
+                                lineNumber: 1694,
                                 columnNumber: 11
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1700,
+                            lineNumber: 1693,
                             columnNumber: 9
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -6535,7 +6469,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                                 children: m.scheduledDate
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1714,
+                                                lineNumber: 1707,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -6545,7 +6479,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                                 children: propertyName(m.propertyId)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1715,
+                                                lineNumber: 1708,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -6556,7 +6490,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                                 children: equipmentLabel(m.propertyId, m.equipmentId)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1716,
+                                                lineNumber: 1709,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -6566,7 +6500,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                                 children: m.description
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1717,
+                                                lineNumber: 1710,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -6577,7 +6511,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                                 children: providerName(m.providerId)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1718,
+                                                lineNumber: 1711,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -6603,7 +6537,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                                             children: "Scheduled"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1725,
+                                                            lineNumber: 1718,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -6611,7 +6545,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                                             children: "In progress"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1726,
+                                                            lineNumber: 1719,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -6619,7 +6553,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                                             children: "Completed"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1727,
+                                                            lineNumber: 1720,
                                                             columnNumber: 21
                                                         }, this),
                                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -6627,18 +6561,18 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                                             children: "Cancelled"
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1728,
+                                                            lineNumber: 1721,
                                                             columnNumber: 21
                                                         }, this)
                                                     ]
                                                 }, void 0, true, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1720,
+                                                    lineNumber: 1713,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1719,
+                                                lineNumber: 1712,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -6651,7 +6585,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                                 children: m.note
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1731,
+                                                lineNumber: 1724,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -6671,23 +6605,23 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                                         size: 15
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1734,
+                                                        lineNumber: 1727,
                                                         columnNumber: 21
                                                     }, this)
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1733,
+                                                    lineNumber: 1726,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1732,
+                                                lineNumber: 1725,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, m.id, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1713,
+                                        lineNumber: 1706,
                                         columnNumber: 15
                                     }, this);
                                 }),
@@ -6702,35 +6636,35 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
                                         children: "No maintenance visits scheduled yet."
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1742,
+                                        lineNumber: 1735,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1741,
+                                    lineNumber: 1734,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1709,
+                            lineNumber: 1702,
                             columnNumber: 9
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                    lineNumber: 1699,
+                    lineNumber: 1692,
                     columnNumber: 1
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1698,
+                lineNumber: 1691,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 1651,
+        lineNumber: 1644,
         columnNumber: 5
     }, this);
 }
@@ -6756,7 +6690,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                 subtitle: "Licenses, tax deadlines, insurance renewals — anything with a due date"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1763,
+                lineNumber: 1756,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -6791,7 +6725,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                         children: "Portfolio-wide"
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1768,
+                                        lineNumber: 1761,
                                         columnNumber: 13
                                     }, this),
                                     properties.map((p)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -6799,19 +6733,19 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                             children: p.name
                                         }, p.id, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1770,
+                                            lineNumber: 1763,
                                             columnNumber: 15
                                         }, this))
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1767,
+                                lineNumber: 1760,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1765,
+                        lineNumber: 1758,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -6844,18 +6778,18 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                         children: t
                                     }, t, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1778,
+                                        lineNumber: 1771,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1776,
+                                lineNumber: 1769,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1774,
+                        lineNumber: 1767,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -6881,13 +6815,13 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1784,
+                                lineNumber: 1777,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1782,
+                        lineNumber: 1775,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -6910,13 +6844,13 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1788,
+                                lineNumber: 1781,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1786,
+                        lineNumber: 1779,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -6942,7 +6876,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                         children: "Annual"
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1793,
+                                        lineNumber: 1786,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -6950,7 +6884,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                         children: "Semi-annual"
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1794,
+                                        lineNumber: 1787,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -6958,7 +6892,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                         children: "Quarterly"
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1795,
+                                        lineNumber: 1788,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -6966,19 +6900,19 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                         children: "One-time"
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1796,
+                                        lineNumber: 1789,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1792,
+                                lineNumber: 1785,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1790,
+                        lineNumber: 1783,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -7002,20 +6936,20 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                 size: 15
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1800,
+                                lineNumber: 1793,
                                 columnNumber: 11
                             }, this),
                             " Add"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1799,
+                        lineNumber: 1792,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1764,
+                lineNumber: 1757,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionTitle, {
@@ -7023,7 +6957,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                 subtitle: "Soonest due first — mark done, or mark done and roll to the next cycle"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1804,
+                lineNumber: 1797,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7059,17 +6993,17 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                         children: h
                                     }, h, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1810,
+                                        lineNumber: 1803,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1808,
+                                lineNumber: 1801,
                                 columnNumber: 11
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1807,
+                            lineNumber: 1800,
                             columnNumber: 9
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -7089,7 +7023,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                                 children: c.dueDate
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1821,
+                                                lineNumber: 1814,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7099,7 +7033,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                                 children: propertyName(c.propertyId)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1822,
+                                                lineNumber: 1815,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7110,7 +7044,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                                 children: c.itemType
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1823,
+                                                lineNumber: 1816,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7121,7 +7055,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                                 children: c.description
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1824,
+                                                lineNumber: 1817,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7140,12 +7074,12 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                                     children: u.label
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1826,
+                                                    lineNumber: 1819,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1825,
+                                                lineNumber: 1818,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7172,7 +7106,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                                                 children: "Done & renew"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1832,
+                                                                lineNumber: 1825,
                                                                 columnNumber: 25
                                                             }, this),
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -7190,13 +7124,13 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                                                 children: "Mark done"
                                                             }, void 0, false, {
                                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                                lineNumber: 1836,
+                                                                lineNumber: 1829,
                                                                 columnNumber: 23
                                                             }, this)
                                                         ]
                                                     }, void 0, true, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1830,
+                                                        lineNumber: 1823,
                                                         columnNumber: 21
                                                     }, this),
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -7212,24 +7146,24 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                                             size: 15
                                                         }, void 0, false, {
                                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                            lineNumber: 1842,
+                                                            lineNumber: 1835,
                                                             columnNumber: 21
                                                         }, this)
                                                     }, void 0, false, {
                                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                        lineNumber: 1841,
+                                                        lineNumber: 1834,
                                                         columnNumber: 19
                                                     }, this)
                                                 ]
                                             }, void 0, true, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1828,
+                                                lineNumber: 1821,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, c.id, true, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1820,
+                                        lineNumber: 1813,
                                         columnNumber: 15
                                     }, this);
                                 }),
@@ -7244,35 +7178,35 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                                         children: "No compliance items on file yet."
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1850,
+                                        lineNumber: 1843,
                                         columnNumber: 15
                                     }, this)
                                 }, void 0, false, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1849,
+                                    lineNumber: 1842,
                                     columnNumber: 13
                                 }, this)
                             ]
                         }, void 0, true, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1816,
+                            lineNumber: 1809,
                             columnNumber: 9
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                    lineNumber: 1806,
+                    lineNumber: 1799,
                     columnNumber: 1
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1805,
+                lineNumber: 1798,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 1762,
+        lineNumber: 1755,
         columnNumber: 5
     }, this);
 }
@@ -7292,7 +7226,7 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                 title: "Log an expense"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1866,
+                lineNumber: 1859,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7326,18 +7260,18 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                         children: p.name
                                     }, p.id, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1872,
+                                        lineNumber: 1865,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1870,
+                                lineNumber: 1863,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1868,
+                        lineNumber: 1861,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -7362,18 +7296,18 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                         children: c
                                     }, c, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1880,
+                                        lineNumber: 1873,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1878,
+                                lineNumber: 1871,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1876,
+                        lineNumber: 1869,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -7400,13 +7334,13 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1886,
+                                lineNumber: 1879,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1884,
+                        lineNumber: 1877,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -7429,13 +7363,13 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1890,
+                                lineNumber: 1883,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1888,
+                        lineNumber: 1881,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -7461,13 +7395,13 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                         }))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1894,
+                                lineNumber: 1887,
                                 columnNumber: 11
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1892,
+                        lineNumber: 1885,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -7491,27 +7425,27 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                 size: 15
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1897,
+                                lineNumber: 1890,
                                 columnNumber: 11
                             }, this),
                             " Add"
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1896,
+                        lineNumber: 1889,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1867,
+                lineNumber: 1860,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionTitle, {
                 title: "Expense log"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1901,
+                lineNumber: 1894,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7547,17 +7481,17 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                         children: h
                                     }, h, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1907,
+                                        lineNumber: 1900,
                                         columnNumber: 15
                                     }, this))
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1905,
+                                lineNumber: 1898,
                                 columnNumber: 11
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1904,
+                            lineNumber: 1897,
                             columnNumber: 9
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tbody", {
@@ -7574,7 +7508,7 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                             children: e.date
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1916,
+                                            lineNumber: 1909,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7584,7 +7518,7 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                             children: nameFor(e.propertyId)
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1917,
+                                            lineNumber: 1910,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7594,7 +7528,7 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                             children: e.category
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1918,
+                                            lineNumber: 1911,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7605,7 +7539,7 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                             children: e.note
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1919,
+                                            lineNumber: 1912,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7617,7 +7551,7 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                             children: money(e.amount)
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1920,
+                                            lineNumber: 1913,
                                             columnNumber: 15
                                         }, this),
                                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7637,28 +7571,28 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                                     size: 15
                                                 }, void 0, false, {
                                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                    lineNumber: 1923,
+                                                    lineNumber: 1916,
                                                     columnNumber: 19
                                                 }, this)
                                             }, void 0, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1922,
+                                                lineNumber: 1915,
                                                 columnNumber: 17
                                             }, this)
                                         }, void 0, false, {
                                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                                            lineNumber: 1921,
+                                            lineNumber: 1914,
                                             columnNumber: 15
                                         }, this)
                                     ]
                                 }, e.id, true, {
                                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                                    lineNumber: 1915,
+                                    lineNumber: 1908,
                                     columnNumber: 13
                                 }, this))
                         }, void 0, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1913,
+                            lineNumber: 1906,
                             columnNumber: 9
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("tfoot", {
@@ -7673,7 +7607,7 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                         children: "Total expenses"
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1931,
+                                        lineNumber: 1924,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
@@ -7687,40 +7621,40 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
                                         children: money(expenses.reduce((s, e)=>s + e.amount, 0))
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1932,
+                                        lineNumber: 1925,
                                         columnNumber: 13
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {}, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1935,
+                                        lineNumber: 1928,
                                         columnNumber: 13
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1930,
+                                lineNumber: 1923,
                                 columnNumber: 11
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1929,
+                            lineNumber: 1922,
                             columnNumber: 9
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                    lineNumber: 1903,
+                    lineNumber: 1896,
                     columnNumber: 1
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1902,
+                lineNumber: 1895,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 1865,
+        lineNumber: 1858,
         columnNumber: 5
     }, this);
 }
@@ -7732,7 +7666,7 @@ function Reports({ byProperty, byCategory, stats }) {
                 subtitle: "Monthly rent minus logged expenses"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1947,
+                lineNumber: 1940,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7754,7 +7688,7 @@ function Reports({ byProperty, byCategory, stats }) {
                                 vertical: false
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1951,
+                                lineNumber: 1944,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$XAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["XAxis"], {
@@ -7768,7 +7702,7 @@ function Reports({ byProperty, byCategory, stats }) {
                                 height: 50
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1952,
+                                lineNumber: 1945,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$YAxis$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["YAxis"], {
@@ -7779,7 +7713,7 @@ function Reports({ byProperty, byCategory, stats }) {
                                 tickFormatter: (v)=>`$${v / 1000}k`
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1953,
+                                lineNumber: 1946,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
@@ -7790,7 +7724,7 @@ function Reports({ byProperty, byCategory, stats }) {
                                 }
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1954,
+                                lineNumber: 1947,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$cartesian$2f$Bar$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Bar"], {
@@ -7804,30 +7738,30 @@ function Reports({ byProperty, byCategory, stats }) {
                                 ]
                             }, void 0, false, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1955,
+                                lineNumber: 1948,
                                 columnNumber: 13
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1950,
+                        lineNumber: 1943,
                         columnNumber: 11
                     }, this)
                 }, void 0, false, {
                     fileName: "[project]/components/PortfolioDashboard.jsx",
-                    lineNumber: 1949,
+                    lineNumber: 1942,
                     columnNumber: 9
                 }, this)
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1948,
+                lineNumber: 1941,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SectionTitle, {
                 title: "Expenses by category"
             }, void 0, false, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1960,
+                lineNumber: 1953,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7859,35 +7793,35 @@ function Reports({ byProperty, byCategory, stats }) {
                                                 fill: PIE_COLORS[i % PIE_COLORS.length]
                                             }, i, false, {
                                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                                lineNumber: 1967,
+                                                lineNumber: 1960,
                                                 columnNumber: 19
                                             }, this))
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1965,
+                                        lineNumber: 1958,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$recharts$2f$es6$2f$component$2f$Tooltip$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["Tooltip"], {
                                         formatter: (v)=>money(v)
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1970,
+                                        lineNumber: 1963,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1964,
+                                lineNumber: 1957,
                                 columnNumber: 13
                             }, this)
                         }, void 0, false, {
                             fileName: "[project]/components/PortfolioDashboard.jsx",
-                            lineNumber: 1963,
+                            lineNumber: 1956,
                             columnNumber: 11
                         }, this)
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1962,
+                        lineNumber: 1955,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7913,7 +7847,7 @@ function Reports({ byProperty, byCategory, stats }) {
                                         }
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1977,
+                                        lineNumber: 1970,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7923,7 +7857,7 @@ function Reports({ byProperty, byCategory, stats }) {
                                         children: c.name
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1978,
+                                        lineNumber: 1971,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7934,24 +7868,24 @@ function Reports({ byProperty, byCategory, stats }) {
                                         children: money(c.value)
                                     }, void 0, false, {
                                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                                        lineNumber: 1979,
+                                        lineNumber: 1972,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, c.name, true, {
                                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                                lineNumber: 1976,
+                                lineNumber: 1969,
                                 columnNumber: 13
                             }, this))
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1974,
+                        lineNumber: 1967,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1961,
+                lineNumber: 1954,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -7969,7 +7903,7 @@ function Reports({ byProperty, byCategory, stats }) {
                         children: "Net cash flow, month to date"
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1986,
+                        lineNumber: 1979,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -7980,19 +7914,19 @@ function Reports({ byProperty, byCategory, stats }) {
                         children: money(stats.net)
                     }, void 0, false, {
                         fileName: "[project]/components/PortfolioDashboard.jsx",
-                        lineNumber: 1987,
+                        lineNumber: 1980,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/PortfolioDashboard.jsx",
-                lineNumber: 1985,
+                lineNumber: 1978,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/PortfolioDashboard.jsx",
-        lineNumber: 1946,
+        lineNumber: 1939,
         columnNumber: 5
     }, this);
 }

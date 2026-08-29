@@ -1,3 +1,5 @@
+"use client";
+
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -543,21 +545,20 @@ export default function PortfolioDashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const result = await window.storage.get(STORAGE_KEY, false);
-        if (result && result.value) {
-          const data = JSON.parse(result.value);
-          if (data.properties) setProperties(data.properties);
-          if (data.ledger) setLedger(data.ledger);
-          if (data.expenses) setExpenses(data.expenses);
-          if (data.utilities) setUtilities(data.utilities);
-          if (data.escrow) setEscrow(data.escrow);
-          if (data.mortgages) setMortgages(data.mortgages);
-          if (data.marketValues) setMarketValues(data.marketValues);
-          if (data.providers) setProviders(data.providers);
-          if (data.equipment) setEquipment(data.equipment);
-          if (data.maintenance) setMaintenance(data.maintenance);
-          if (data.compliance) setCompliance(data.compliance);
-        }
+        const res = await fetch("/api/portfolio");
+        const json = await res.json();
+        const data = json?.data || {};
+        if (data.properties) setProperties(data.properties);
+        if (data.ledger) setLedger(data.ledger);
+        if (data.expenses) setExpenses(data.expenses);
+        if (data.utilities) setUtilities(data.utilities);
+        if (data.escrow) setEscrow(data.escrow);
+        if (data.mortgages) setMortgages(data.mortgages);
+        if (data.marketValues) setMarketValues(data.marketValues);
+        if (data.providers) setProviders(data.providers);
+        if (data.equipment) setEquipment(data.equipment);
+        if (data.maintenance) setMaintenance(data.maintenance);
+        if (data.compliance) setCompliance(data.compliance);
       } catch (err) {
         // no saved data yet, or a read error — start from seed data
         console.log("No saved portfolio data found, starting fresh:", err);
@@ -574,8 +575,13 @@ export default function PortfolioDashboard() {
     setSaveStatus("saving");
     const timer = setTimeout(async () => {
       try {
-        const result = await window.storage.set(STORAGE_KEY, JSON.stringify({ properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance }), false);
-        setSaveStatus(result ? "saved" : "error");
+        const res = await fetch("/api/portfolio", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance }),
+        });
+        const json = await res.json();
+        setSaveStatus(json?.ok ? "saved" : "error");
       } catch (err) {
         console.error("Failed to save portfolio data:", err);
         setSaveStatus("error");
@@ -1039,11 +1045,35 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                     style={{ width: 16, height: 16, cursor: "pointer", accentColor: T.pine }}
                   />
                 </td>
-                <td style={{ padding: "10px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", color: m.hasMortgage ? T.ink : T.inkSoft }}>
-                  {m.hasMortgage ? money(Number(m.balance) || 0) : "—"}
+                <td style={{ padding: "4px 4px" }}>
+                  {m.hasMortgage ? (
+                    <input
+                      style={{ ...cellInputStyle, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}
+                      type="number"
+                      placeholder="0"
+                      value={m.balance}
+                      onChange={(e) => updateMortgage(p.id, "balance", e.target.value)}
+                      onFocus={(e) => (e.target.style.border = `1px solid ${T.line}`)}
+                      onBlur={(e) => (e.target.style.border = "1px solid transparent")}
+                    />
+                  ) : (
+                    <div style={{ textAlign: "right", color: T.inkSoft, padding: "4px 6px" }}>—</div>
+                  )}
                 </td>
-                <td style={{ padding: "10px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", color: m.hasMortgage ? T.ink : T.inkSoft }}>
-                  {m.hasMortgage ? money(Number(m.monthlyPayment) || 0) : "—"}
+                <td style={{ padding: "4px 4px" }}>
+                  {m.hasMortgage ? (
+                    <input
+                      style={{ ...cellInputStyle, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}
+                      type="number"
+                      placeholder="0"
+                      value={m.monthlyPayment}
+                      onChange={(e) => updateMortgage(p.id, "monthlyPayment", e.target.value)}
+                      onFocus={(e) => (e.target.style.border = `1px solid ${T.line}`)}
+                      onBlur={(e) => (e.target.style.border = "1px solid transparent")}
+                    />
+                  ) : (
+                    <div style={{ textAlign: "right", color: T.inkSoft, padding: "4px 6px" }}>—</div>
+                  )}
                 </td>
                 <td style={{ padding: "10px 6px", textAlign: "right", whiteSpace: "nowrap" }}>
                   <button onClick={() => goToLedger(p.id)} style={{ background: "none", border: `1px solid ${T.line}`, borderRadius: 6, padding: "5px 10px", fontSize: 12, cursor: "pointer", color: T.pine, marginRight: 6 }}>
