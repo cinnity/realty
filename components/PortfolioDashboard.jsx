@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -27,6 +25,117 @@ const T = {
 
 const FONTS = `
 @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+/* mobile-first: base rules target small screens, min-width queries widen the layout up */
+
+.app-shell {
+  display: flex;
+  flex-direction: column;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+@media (min-width: 860px) {
+  .app-shell { flex-direction: row; }
+}
+
+.app-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 16px 16px 14px;
+  border-bottom: 1px solid #D8D2C0;
+}
+@media (min-width: 640px) {
+  .app-header { flex-direction: row; justify-content: space-between; align-items: flex-start; padding: 28px 32px 22px; }
+}
+
+.side-nav {
+  display: flex;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #D8D2C0;
+  scrollbar-width: none;
+}
+.side-nav::-webkit-scrollbar { display: none; }
+@media (min-width: 860px) {
+  .side-nav { flex-direction: column; overflow-x: visible; width: 168px; flex-shrink: 0; padding: 28px 0 0; border-bottom: none; }
+}
+
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  padding: 9px 14px;
+  border-radius: 20px;
+  border: 1px solid #D8D2C0;
+  background: transparent;
+  color: #5B6660;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+.nav-btn.active {
+  background: #FFFFFF;
+  color: #2D5A4A;
+  font-weight: 600;
+  border-color: #2D5A4A;
+}
+@media (min-width: 860px) {
+  .nav-btn {
+    width: 100%;
+    text-align: left;
+    border-radius: 8px 0 0 8px;
+    padding: 11px 14px 11px 18px;
+    margin-left: 10px;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+  }
+  .nav-btn.active {
+    margin-left: 0;
+    border: 1px solid #D8D2C0;
+    box-shadow: inset 3px 0 0 #B08D57;
+  }
+}
+
+.main-panel {
+  flex: 1;
+  min-width: 0;
+  background: #FFFFFF;
+  border: 1px solid #D8D2C0;
+  padding: 16px;
+  min-height: 400px;
+}
+@media (min-width: 860px) {
+  .main-panel { border-radius: 10px 10px 0 0; padding: 28px; margin-top: 28px; min-height: 560px; }
+}
+
+.ledger-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+@media (min-width: 760px) {
+  .ledger-columns { flex-direction: row; gap: 24px; }
+}
+.ledger-property-list {
+  display: flex;
+  overflow-x: auto;
+  gap: 6px;
+  -webkit-overflow-scrolling: touch;
+}
+@media (min-width: 760px) {
+  .ledger-property-list { flex-direction: column; overflow-x: visible; width: 190px; flex-shrink: 0; gap: 4px; }
+}
+
+.table-scroll {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 `;
 
 // ---------- sample properties ----------
@@ -356,7 +465,37 @@ function propertyPerformance(property, { marketValues, mortgages, expenses }) {
 }
 
 export default function PortfolioDashboard() {
-  const [properties] = useState(SEED_PROPERTIES);
+  const [properties, setProperties] = useState(SEED_PROPERTIES);
+  const [newPropertyForm, setNewPropertyForm] = useState({ name: "", city: "", tenant: "", rent: "" });
+
+  const updateProperty = (id, field, value) =>
+    setProperties((ps) => ps.map((p) => (p.id === id ? { ...p, [field]: field === "rent" ? Number(value) || 0 : value } : p)));
+
+  const addProperty = () => {
+    if (!newPropertyForm.name) return;
+    const id = Date.now();
+    setProperties((ps) => [...ps, { id, name: newPropertyForm.name, city: newPropertyForm.city, tenant: newPropertyForm.tenant, rent: Number(newPropertyForm.rent) || 0 }]);
+    setNewPropertyForm({ name: "", city: "", tenant: "", rent: "" });
+  };
+
+  // removing a property cleans up everything that referenced it, so nothing is left orphaned
+  const removeProperty = (id) => {
+    setProperties((ps) => ps.filter((p) => p.id !== id));
+    setLedger((ls) => ls.filter((e) => e.propertyId !== id));
+    setExpenses((es) => es.filter((e) => e.propertyId !== id));
+    setUtilities((u) => { const { [id]: _drop, ...rest } = u; return rest; });
+    setEscrow((es) => { const { [id]: _drop, ...rest } = es; return rest; });
+    setMortgages((m) => { const { [id]: _drop, ...rest } = m; return rest; });
+    setMarketValues((mv) => { const { [id]: _drop, ...rest } = mv; return rest; });
+    setEquipment((eq) => { const { [id]: _drop, ...rest } = eq; return rest; });
+    setMaintenance((ms) => ms.filter((m) => m.propertyId !== id));
+    setCompliance((cs) => cs.filter((c) => c.propertyId !== id));
+    if (selectedId === id) {
+      const remaining = properties.filter((p) => p.id !== id);
+      if (remaining[0]) setSelectedId(remaining[0].id);
+    }
+  };
+
   const [ledger, setLedger] = useState(SEED_LEDGER);
   const [expenses, setExpenses] = useState(SEED_EXPENSES);
   const [utilities, setUtilities] = useState(SEED_UTILITIES);
@@ -471,19 +610,21 @@ export default function PortfolioDashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/portfolio");
-        const json = await res.json();
-        const data = json?.data || {};
-        if (data.ledger) setLedger(data.ledger);
-        if (data.expenses) setExpenses(data.expenses);
-        if (data.utilities) setUtilities(data.utilities);
-        if (data.escrow) setEscrow(data.escrow);
-        if (data.mortgages) setMortgages(data.mortgages);
-        if (data.marketValues) setMarketValues(data.marketValues);
-        if (data.providers) setProviders(data.providers);
-        if (data.equipment) setEquipment(data.equipment);
-        if (data.maintenance) setMaintenance(data.maintenance);
-        if (data.compliance) setCompliance(data.compliance);
+        const result = await window.storage.get(STORAGE_KEY, false);
+        if (result && result.value) {
+          const data = JSON.parse(result.value);
+          if (data.properties) setProperties(data.properties);
+          if (data.ledger) setLedger(data.ledger);
+          if (data.expenses) setExpenses(data.expenses);
+          if (data.utilities) setUtilities(data.utilities);
+          if (data.escrow) setEscrow(data.escrow);
+          if (data.mortgages) setMortgages(data.mortgages);
+          if (data.marketValues) setMarketValues(data.marketValues);
+          if (data.providers) setProviders(data.providers);
+          if (data.equipment) setEquipment(data.equipment);
+          if (data.maintenance) setMaintenance(data.maintenance);
+          if (data.compliance) setCompliance(data.compliance);
+        }
       } catch (err) {
         // no saved data yet, or a read error — start from seed data
         console.log("No saved portfolio data found, starting fresh:", err);
@@ -500,20 +641,15 @@ export default function PortfolioDashboard() {
     setSaveStatus("saving");
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch("/api/portfolio", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance }),
-        });
-        const json = await res.json();
-        setSaveStatus(json?.ok ? "saved" : "error");
+        const result = await window.storage.set(STORAGE_KEY, JSON.stringify({ properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance }), false);
+        setSaveStatus(result ? "saved" : "error");
       } catch (err) {
         console.error("Failed to save portfolio data:", err);
         setSaveStatus("error");
       }
     }, 500); // debounce so rapid edits don't fire a save per keystroke
     return () => clearTimeout(timer);
-  }, [ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance]);
+  }, [properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance]);
 
   const addUtility = () => {
     if (!utilityForm.provider || !utilityForm.account) return;
@@ -603,14 +739,14 @@ export default function PortfolioDashboard() {
     <div style={{ background: T.paper, minHeight: "100vh", fontFamily: "'IBM Plex Sans', sans-serif", color: T.ink }}>
       <style>{FONTS}</style>
 
-      <header style={{ borderBottom: `1px solid ${T.line}`, padding: "28px 32px 22px", display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <header className="app-header">
         <div>
-          <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 30, fontWeight: 700, letterSpacing: "-0.01em" }}>
+          <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 26, fontWeight: 700, letterSpacing: "-0.01em" }}>
             The Ledger
           </div>
-          <div style={{ color: T.inkSoft, fontSize: 14, marginTop: 2 }}>10-property portfolio &middot; August 2026</div>
+          <div style={{ color: T.inkSoft, fontSize: 13, marginTop: 2 }}>10-property portfolio &middot; August 2026</div>
         </div>
-        <div style={{ textAlign: "right", fontSize: 12, color: T.inkSoft, paddingTop: 6 }}>
+        <div style={{ fontSize: 12, color: T.inkSoft }}>
           {saveStatus === "saving" && "Saving…"}
           {saveStatus === "saved" && "✓ Saved"}
           {saveStatus === "error" && <span style={{ color: T.brick }}>Save failed — check connection</span>}
@@ -618,28 +754,12 @@ export default function PortfolioDashboard() {
         </div>
       </header>
 
-      <div style={{ display: "flex", maxWidth: 1180, margin: "0 auto" }}>
-        <nav style={{ width: 168, flexShrink: 0, paddingTop: 28 }}>
+      <div className="app-shell">
+        <nav className="side-nav">
           {NAV.map(({ id, label, icon: Icon }) => {
             const active = tab === id;
             return (
-              <button
-                key={id}
-                onClick={() => setTab(id)}
-                style={{
-                  display: "flex", alignItems: "center", gap: 9, width: "100%",
-                  padding: "11px 14px 11px 18px", marginBottom: 8, marginLeft: active ? 0 : 10,
-                  border: "none", borderRadius: "8px 0 0 8px",
-                  background: active ? T.card : "transparent",
-                  color: active ? T.pine : T.inkSoft,
-                  fontSize: 14, fontWeight: active ? 600 : 500,
-                  cursor: "pointer", textAlign: "left",
-                  boxShadow: active ? `inset 3px 0 0 ${T.amber}` : "none",
-                  borderTop: active ? `1px solid ${T.line}` : "1px solid transparent",
-                  borderBottom: active ? `1px solid ${T.line}` : "1px solid transparent",
-                  borderLeft: active ? `1px solid ${T.line}` : "1px solid transparent",
-                }}
-              >
+              <button key={id} onClick={() => setTab(id)} className={`nav-btn${active ? " active" : ""}`}>
                 <Icon size={16} />
                 {label}
               </button>
@@ -647,7 +767,7 @@ export default function PortfolioDashboard() {
           })}
         </nav>
 
-        <main style={{ flex: 1, background: T.card, border: `1px solid ${T.line}`, borderRadius: "10px 10px 0 0", padding: 28, marginTop: 28, minHeight: 560 }}>
+        <main className="main-panel">
           {tab === "overview" && <Overview stats={stats} properties={properties} balances={balances} goToLedger={(id) => { setSelectedId(id); setTab("ledgers"); }} />}
           {tab === "snapshot" && (
             <Snapshot
@@ -663,7 +783,7 @@ export default function PortfolioDashboard() {
               goToLedger={(id) => { setSelectedId(id); setTab("ledgers"); }}
             />
           )}
-          {tab === "properties" && <Properties properties={properties} balances={balances} goToLedger={(id) => { setSelectedId(id); setTab("ledgers"); }} mortgages={mortgages} updateMortgage={updateMortgage} />}
+          {tab === "properties" && <Properties properties={properties} balances={balances} goToLedger={(id) => { setSelectedId(id); setTab("ledgers"); }} mortgages={mortgages} updateMortgage={updateMortgage} updateProperty={updateProperty} addProperty={addProperty} removeProperty={removeProperty} newPropertyForm={newPropertyForm} setNewPropertyForm={setNewPropertyForm} />}
           {tab === "ledgers" && (
             <Ledgers
               properties={properties}
@@ -856,7 +976,8 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
       </div>
 
       <SectionTitle title="Performance by property" subtitle="Click a property to see its full ledger" />
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
+      <div className="table-scroll">
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
             {["Property", "Rent status", "Market value", "Equity", "Cash flow/mo", "Gross yield", "Cap rate"].map((h) => (
@@ -882,6 +1003,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
           ))}
         </tbody>
       </table>
+        </div>
       <div style={{ fontSize: 11, color: T.inkSoft, marginTop: 10, fontStyle: "italic" }}>
         Cap rate and yield are estimates based on data on file, not a full-year audited actual.
       </div>
@@ -901,11 +1023,38 @@ function AttentionRow({ icon: Icon, tone, label, detail }) {
   );
 }
 
-function Properties({ properties, balances, goToLedger, mortgages, updateMortgage }) {
+function Properties({ properties, balances, goToLedger, mortgages, updateMortgage, updateProperty, addProperty, removeProperty, newPropertyForm, setNewPropertyForm }) {
+  const inputStyle = { border: `1px solid ${T.line}`, borderRadius: 6, padding: "6px 8px", fontSize: 13, background: T.paper, color: T.ink, width: "100%" };
+  const cellInputStyle = { border: "1px solid transparent", borderRadius: 4, padding: "4px 6px", fontSize: 14, background: "transparent", color: T.ink, width: "100%", fontFamily: "inherit" };
+
   return (
     <div>
-      <SectionTitle title="Properties" subtitle="Balance reflects rent charged to date minus payments received" />
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+      <SectionTitle title="Add a property" subtitle="New properties start with an empty ledger, expenses, and everything else" />
+      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 26, alignItems: "flex-end" }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft, flex: 1, minWidth: 160 }}>
+          Property name / address
+          <input style={inputStyle} type="text" placeholder="e.g. 100 Main St" value={newPropertyForm.name} onChange={(e) => setNewPropertyForm((f) => ({ ...f, name: e.target.value }))} />
+        </label>
+        <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+          City
+          <input style={inputStyle} type="text" value={newPropertyForm.city} onChange={(e) => setNewPropertyForm((f) => ({ ...f, city: e.target.value }))} />
+        </label>
+        <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+          Tenant
+          <input style={inputStyle} type="text" placeholder="Optional" value={newPropertyForm.tenant} onChange={(e) => setNewPropertyForm((f) => ({ ...f, tenant: e.target.value }))} />
+        </label>
+        <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+          Monthly rent
+          <input style={{ ...inputStyle, width: 110 }} type="number" placeholder="0" value={newPropertyForm.rent} onChange={(e) => setNewPropertyForm((f) => ({ ...f, rent: e.target.value }))} />
+        </label>
+        <button onClick={addProperty} style={{ display: "flex", alignItems: "center", gap: 6, background: T.pine, color: "#fff", border: "none", borderRadius: 6, padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", height: 37 }}>
+          <Plus size={15} /> Add
+        </button>
+      </div>
+
+      <SectionTitle title="Properties" subtitle="Click into any field to edit — changes save automatically" />
+      <div className="table-scroll">
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
             {["Property", "City", "Tenant", "Monthly rent", "Balance", "Mortgage", "Loan balance", "Monthly P&I", ""].map((h) => (
@@ -922,10 +1071,18 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
             const m = mortgages[p.id] || DEFAULT_MORTGAGE;
             return (
               <tr key={p.id} style={{ borderBottom: `1px solid ${T.line}` }}>
-                <td style={{ padding: "10px 6px", fontWeight: 500 }}>{p.name}</td>
-                <td style={{ padding: "10px 6px", color: T.inkSoft }}>{p.city}</td>
-                <td style={{ padding: "10px 6px" }}>{p.tenant}</td>
-                <td style={{ padding: "10px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>{money(p.rent)}</td>
+                <td style={{ padding: "4px 4px" }}>
+                  <input style={{ ...cellInputStyle, fontWeight: 500 }} type="text" value={p.name} onChange={(e) => updateProperty(p.id, "name", e.target.value)} onFocus={(e) => (e.target.style.border = `1px solid ${T.line}`)} onBlur={(e) => (e.target.style.border = "1px solid transparent")} />
+                </td>
+                <td style={{ padding: "4px 4px" }}>
+                  <input style={cellInputStyle} type="text" value={p.city} onChange={(e) => updateProperty(p.id, "city", e.target.value)} onFocus={(e) => (e.target.style.border = `1px solid ${T.line}`)} onBlur={(e) => (e.target.style.border = "1px solid transparent")} />
+                </td>
+                <td style={{ padding: "4px 4px" }}>
+                  <input style={cellInputStyle} type="text" value={p.tenant} onChange={(e) => updateProperty(p.id, "tenant", e.target.value)} onFocus={(e) => (e.target.style.border = `1px solid ${T.line}`)} onBlur={(e) => (e.target.style.border = "1px solid transparent")} />
+                </td>
+                <td style={{ padding: "4px 4px" }}>
+                  <input style={{ ...cellInputStyle, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }} type="number" value={p.rent} onChange={(e) => updateProperty(p.id, "rent", e.target.value)} onFocus={(e) => (e.target.style.border = `1px solid ${T.line}`)} onBlur={(e) => (e.target.style.border = "1px solid transparent")} />
+                </td>
                 <td style={{ padding: "10px 6px", textAlign: "right" }}>
                   <span style={{ background: s.bg, color: s.fg, fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>{s.label}</span>
                 </td>
@@ -943,14 +1100,25 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                 <td style={{ padding: "10px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", color: m.hasMortgage ? T.ink : T.inkSoft }}>
                   {m.hasMortgage ? money(Number(m.monthlyPayment) || 0) : "—"}
                 </td>
-                <td style={{ padding: "10px 6px", textAlign: "right" }}>
-                  <button onClick={() => goToLedger(p.id)} style={{ background: "none", border: `1px solid ${T.line}`, borderRadius: 6, padding: "5px 10px", fontSize: 12, cursor: "pointer", color: T.pine }}>
+                <td style={{ padding: "10px 6px", textAlign: "right", whiteSpace: "nowrap" }}>
+                  <button onClick={() => goToLedger(p.id)} style={{ background: "none", border: `1px solid ${T.line}`, borderRadius: 6, padding: "5px 10px", fontSize: 12, cursor: "pointer", color: T.pine, marginRight: 6 }}>
                     View ledger
+                  </button>
+                  <button
+                    onClick={() => { if (confirm(`Remove ${p.name}? This deletes its ledger, expenses, and all other records.`)) removeProperty(p.id); }}
+                    style={{ background: "none", border: "none", cursor: "pointer", color: T.inkSoft, verticalAlign: "middle" }}
+                  >
+                    <Trash2 size={15} />
                   </button>
                 </td>
               </tr>
             );
           })}
+          {properties.length === 0 && (
+            <tr>
+              <td colSpan={9} style={{ padding: "16px 6px", color: T.inkSoft, fontStyle: "italic" }}>No properties yet — add one above.</td>
+            </tr>
+          )}
         </tbody>
         <tfoot>
           <tr>
@@ -970,6 +1138,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
           </tr>
         </tfoot>
       </table>
+        </div>
     </div>
   );
 }
@@ -1002,34 +1171,34 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
 
   const inputStyle = { border: `1px solid ${T.line}`, borderRadius: 6, padding: "8px 10px", fontSize: 13, background: T.paper, color: T.ink };
 
+  const selectedStatus = statusFor(balances[selectedId], property.rent);
+
   return (
-    <div style={{ display: "flex", gap: 24 }}>
-      <div style={{ width: 190, flexShrink: 0 }}>
-        <SectionTitle title="Select property" />
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          {properties.map((p) => {
-            const active = p.id === selectedId;
-            const s = statusFor(balances[p.id], p.rent);
-            return (
-              <button
-                key={p.id}
-                onClick={() => setSelectedId(p.id)}
-                style={{
-                  textAlign: "left", padding: "8px 10px", borderRadius: 6, cursor: "pointer",
-                  border: `1px solid ${active ? T.pine : "transparent"}`,
-                  background: active ? T.pineSoft : "transparent",
-                  fontSize: 13, color: T.ink,
-                }}
-              >
-                <div style={{ fontWeight: 500 }}>{p.name}</div>
-                <div style={{ fontSize: 11, color: s.fg, marginTop: 2 }}>{s.label}</div>
-              </button>
-            );
-          })}
-        </div>
+    <div>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
+        <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+          Property
+          <select
+            value={selectedId}
+            onChange={(e) => setSelectedId(Number(e.target.value))}
+            style={{ border: `1px solid ${T.line}`, borderRadius: 6, padding: "9px 10px", fontSize: 14, background: T.paper, color: T.ink, minWidth: 220, fontWeight: 500 }}
+          >
+            {properties.map((p) => {
+              const s = statusFor(balances[p.id], p.rent);
+              return (
+                <option key={p.id} value={p.id}>
+                  {p.name} — {s.label}
+                </option>
+              );
+            })}
+          </select>
+        </label>
+        <span style={{ background: selectedStatus.bg, color: selectedStatus.fg, fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 20, marginTop: 18 }}>
+          {selectedStatus.label}
+        </span>
       </div>
 
-      <div style={{ flex: 1 }}>
+      <div>
         <SectionTitle title={`${property.name} — ledger`} subtitle={`${property.tenant} · rent ${money(property.rent)}/mo`} />
 
         <div style={{ background: T.paper, border: `1px solid ${T.line}`, borderRadius: 8, padding: "12px 16px", marginBottom: 20 }}>
@@ -1083,7 +1252,8 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
           </button>
         </div>
 
-        <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+        <div className="table-scroll">
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
           <thead>
             <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
               {["Date", "Type", "Note", "Amount", "Balance"].map((h) => (
@@ -1117,6 +1287,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
             </tr>
           </tfoot>
         </table>
+        </div>
 
         <div style={{ marginTop: 32 }}>
           <SectionTitle title="Utility accounts" subtitle="Kept on file for continuity across tenant turnover" />
@@ -1150,7 +1321,8 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
             </button>
           </div>
 
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+          <div className="table-scroll">
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
                 {["Utility", "Provider", "Account #", "Pays", ""].map((h) => (
@@ -1185,6 +1357,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
               )}
             </tbody>
           </table>
+        </div>
         </div>
 
         <div style={{ marginTop: 32 }}>
@@ -1223,7 +1396,8 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
             </button>
           </div>
 
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+          <div className="table-scroll">
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
                 {["Date", "Type", "Category", "Note", "Amount", "Balance", ""].map((h) => (
@@ -1271,6 +1445,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
               </tr>
             </tfoot>
           </table>
+        </div>
         </div>
 
         <div style={{ marginTop: 32 }}>
@@ -1343,7 +1518,8 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
             </button>
           </div>
 
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+          <div className="table-scroll">
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
             <thead>
               <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
                 {["Type", "Make / model", "Installed", "Age", "Status", ""].map((h) => (
@@ -1384,6 +1560,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
               )}
             </tbody>
           </table>
+        </div>
         </div>
       </div>
     </div>
@@ -1512,7 +1689,8 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
       </div>
 
       <SectionTitle title="All visits" subtitle="Across the portfolio, upcoming first" />
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+      <div className="table-scroll">
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
             {["Date", "Property", "Equipment", "Description", "Provider", "Status", "Note", ""].map((h) => (
@@ -1560,6 +1738,7 @@ function Maintenance({ properties, equipment, providers, maintenance, form, setF
           )}
         </tbody>
       </table>
+        </div>
     </div>
   );
 }
@@ -1617,7 +1796,8 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
       </div>
 
       <SectionTitle title="All items" subtitle="Soonest due first — mark done, or mark done and roll to the next cycle" />
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+      <div className="table-scroll">
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
             {["Due", "Property", "Type", "Description", "Status", ""].map((h) => (
@@ -1666,6 +1846,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
           )}
         </tbody>
       </table>
+        </div>
     </div>
   );
 }
@@ -1712,7 +1893,8 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
       </div>
 
       <SectionTitle title="Expense log" />
-      <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+      <div className="table-scroll">
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
             {["Date", "Property", "Category", "Note", "Amount", ""].map((h) => (
@@ -1748,6 +1930,7 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
           </tr>
         </tfoot>
       </table>
+        </div>
     </div>
   );
 }
