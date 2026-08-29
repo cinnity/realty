@@ -1,5 +1,3 @@
-"use client";
-
 import { useState, useMemo, useEffect, useRef } from "react";
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -141,211 +139,133 @@ const FONTS = `
 `;
 
 // ---------- sample properties ----------
+// Loaded from the 2024/2025 cash flow sheet. Tenant names and city for #3
+// weren't in the source data — left blank. Lease dates aren't tracked as a
+// field yet, so they're summarized here instead:
+//   #1  810B Stratford Way: lease 05/07/22–04/30/23 (expired)
+//   #2  11510 Little Patuxent Pkwy #407: lease 10/30/22–11/30/23
+//   #3  10249 Prince Pl: lease ended 12/31/2023, city not given in source
+//   #4  1624 Northbourne Rd: lease 06/15/22–06/30/23; rent was $1,800 Jan–Mar, $1,975 Aug–Dec
+//   #5  2061 Alice Ave #203: lease 11/01/21–11/30/22 (expired)
+//   #6  2000 Alice Ave #301: lease 07/01/22–07/31/24; ran a small monthly loss (~-$23.81) per source sheet
+//   #7  11415 Little Patuxent Pkwy #4-108: lease 01/15/22–12/31/22 (expired); ran a small monthly loss (~-$9.70)
+//   #8  5809 Greenlawn Dr: lease 04/01/21–04/30/23; source notes "tax, ins escrowed" — these are the lender-escrowed amounts, not separately billed
+//   #9  267 Cobblestone Ct: ~04/2022–04/2023, only 11 of 12 months occupied
+//   #10 11410 Little Patuxent Pkwy #1001: no lease dates given in source
 const SEED_PROPERTIES = [
-  { id: 1, name: "412 Maple Row", city: "Bethesda, MD", tenant: "J. Alvarez", rent: 2450 },
-  { id: 2, name: "88 Larkspur Ct", city: "Rockville, MD", tenant: "T. Nguyen", rent: 1980 },
-  { id: 3, name: "1207 Cobalt Ave", city: "Silver Spring, MD", tenant: "M. Okafor", rent: 2100 },
-  { id: 4, name: "56 Windmere Ln", city: "Bethesda, MD", tenant: "R. Fischer", rent: 2600 },
-  { id: 5, name: "301 Birchwood Dr", city: "Gaithersburg, MD", tenant: "S. Patel", rent: 1875 },
-  { id: 6, name: "19 Copperfield Way", city: "Rockville, MD", tenant: "L. Kowalski", rent: 2225 },
-  { id: 7, name: "742 Thistle St", city: "Silver Spring, MD", tenant: "D. Reyes", rent: 1990 },
-  { id: 8, name: "5 Harrow Mews", city: "Bethesda, MD", tenant: "A. Kim", rent: 2750 },
-  { id: 9, name: "234 Foxglove Ter", city: "Gaithersburg, MD", tenant: "C. Osei", rent: 1840 },
-  { id: 10, name: "77 Pemberton Rd", city: "Rockville, MD", tenant: "N. Volkov", rent: 2380 },
+  { id: 1, name: "810B Stratford Way", city: "Frederick, MD", tenant: "", rent: 1800, leaseStart: "2022-05-07", leaseEnd: "2023-04-30" },
+  { id: 2, name: "11510 Little Patuxent Pkwy #407", city: "Columbia, MD", tenant: "", rent: 2100, leaseStart: "2022-10-30", leaseEnd: "2023-11-30" },
+  { id: 3, name: "10249 Prince Pl", city: "", tenant: "", rent: 1700, leaseStart: "", leaseEnd: "2023-12-31" },
+  { id: 4, name: "1624 Northbourne Rd", city: "Baltimore, MD", tenant: "", rent: 1975, leaseStart: "2022-06-15", leaseEnd: "2023-06-30" },
+  { id: 5, name: "2061 Alice Ave #203", city: "Oxon Hill, MD", tenant: "", rent: 1750, leaseStart: "2021-11-01", leaseEnd: "2022-11-30" },
+  { id: 6, name: "2000 Alice Ave #301", city: "Oxon Hill, MD", tenant: "", rent: 1775, leaseStart: "2022-07-01", leaseEnd: "2024-07-31" },
+  { id: 7, name: "11415 Little Patuxent Pkwy #4-108", city: "Columbia, MD", tenant: "", rent: 1650, leaseStart: "2022-01-15", leaseEnd: "2022-12-31" },
+  { id: 8, name: "5809 Greenlawn Dr", city: "Bethesda, MD", tenant: "", rent: 4200, leaseStart: "2021-04-01", leaseEnd: "2023-04-30" },
+  { id: 9, name: "267 Cobblestone Ct", city: "Schaumburg, IL", tenant: "", rent: 2700, leaseStart: "2022-04-01", leaseEnd: "2023-04-30" },
+  { id: 10, name: "11410 Little Patuxent Pkwy #1001", city: "Columbia, MD", tenant: "", rent: 1900, leaseStart: "", leaseEnd: "" },
 ];
 
-const MONTHS = [
-  { date: "2026-06-01", label: "June" },
-  { date: "2026-07-01", label: "July" },
-  { date: "2026-08-01", label: "August" },
-];
+// No transaction history was in the source sheet (it's an annual summary,
+// not a payment log) — starting clean rather than inventing a fake history.
+const SEED_LEDGER = [];
 
-// charges: rent posted on the 1st of each month for every property
-function genCharges() {
-  let id = 1;
-  const rows = [];
-  MONTHS.forEach((m) => {
-    SEED_PROPERTIES.forEach((p) => {
-      rows.push({ id: id++, propertyId: p.id, date: m.date, type: "charge", amount: p.rent, note: `${m.label} rent` });
-    });
-  });
-  return rows;
-}
-
-// hand-authored payment history so the portfolio shows a realistic mix:
-// fully current, partial-but-caught-up, and behind on multiple months
-const SEED_PAYMENTS = [
-  // 1 — always pays in full, on time
-  { propertyId: 1, date: "2026-06-02", amount: 2450, note: "Full payment" },
-  { propertyId: 1, date: "2026-07-01", amount: 2450, note: "Full payment" },
-  { propertyId: 1, date: "2026-08-02", amount: 2450, note: "Full payment" },
-  // 2 — on time, full
-  { propertyId: 2, date: "2026-06-03", amount: 1980, note: "Full payment" },
-  { propertyId: 2, date: "2026-07-03", amount: 1980, note: "Full payment" },
-  { propertyId: 2, date: "2026-08-03", amount: 1980, note: "Full payment" },
-  // 3 — current through July, August not yet paid
-  { propertyId: 3, date: "2026-06-05", amount: 2100, note: "Full payment" },
-  { propertyId: 3, date: "2026-07-04", amount: 2100, note: "Full payment" },
-  // 4 — full, on time
-  { propertyId: 4, date: "2026-06-01", amount: 2600, note: "Full payment" },
-  { propertyId: 4, date: "2026-07-01", amount: 2600, note: "Full payment" },
-  { propertyId: 4, date: "2026-08-01", amount: 2600, note: "Full payment" },
-  // 5 — behind: partial every month, gap keeps growing
-  { propertyId: 5, date: "2026-06-08", amount: 1200, note: "Partial payment" },
-  { propertyId: 5, date: "2026-06-22", amount: 400, note: "Partial payment" },
-  { propertyId: 5, date: "2026-07-10", amount: 900, note: "Partial payment" },
-  { propertyId: 5, date: "2026-08-06", amount: 500, note: "Partial payment" },
-  // 6 — full, on time
-  { propertyId: 6, date: "2026-06-02", amount: 2225, note: "Full payment" },
-  { propertyId: 6, date: "2026-07-02", amount: 2225, note: "Full payment" },
-  { propertyId: 6, date: "2026-08-02", amount: 2225, note: "Full payment" },
-  // 7 — caught up through July, made a partial payment for August
-  { propertyId: 7, date: "2026-06-04", amount: 1990, note: "Full payment" },
-  { propertyId: 7, date: "2026-07-05", amount: 1990, note: "Full payment" },
-  { propertyId: 7, date: "2026-08-09", amount: 1200, note: "Partial payment — remainder due" },
-  // 8 — full, on time
-  { propertyId: 8, date: "2026-06-01", amount: 2750, note: "Full payment" },
-  { propertyId: 8, date: "2026-07-01", amount: 2750, note: "Full payment" },
-  { propertyId: 8, date: "2026-08-01", amount: 2750, note: "Full payment" },
-  // 9 — full, on time
-  { propertyId: 9, date: "2026-06-03", amount: 1840, note: "Full payment" },
-  { propertyId: 9, date: "2026-07-03", amount: 1840, note: "Full payment" },
-  { propertyId: 9, date: "2026-08-03", amount: 1840, note: "Full payment" },
-  // 10 — missed July entirely, partial in August
-  { propertyId: 10, date: "2026-06-05", amount: 2380, note: "Full payment" },
-  { propertyId: 10, date: "2026-08-12", amount: 900, note: "Partial payment" },
-];
-
-function genPayments() {
-  let id = 500;
-  return SEED_PAYMENTS.map((p) => ({ id: id++, type: "payment", ...p }));
-}
-
-const SEED_LEDGER = [...genCharges(), ...genPayments()];
-
+// License fees were the one clearly recurring cost that didn't fit the
+// Reserves categories (Property Tax / Insurance / HOA / Other) — logged
+// here as a single representative annual entry per property.
 const SEED_EXPENSES = [
-  { id: 1, propertyId: 1, category: "Maintenance", amount: 240, date: "2026-08-03", note: "HVAC filter service" },
-  { id: 2, propertyId: 4, category: "Insurance", amount: 610, date: "2026-08-05", note: "Annual premium" },
-  { id: 3, propertyId: 5, category: "Repairs", amount: 890, date: "2026-08-11", note: "Water heater replacement" },
-  { id: 4, propertyId: 8, category: "Property Tax", amount: 1450, date: "2026-08-14", note: "Q3 installment" },
-  { id: 5, propertyId: 3, category: "Maintenance", amount: 180, date: "2026-08-18", note: "Gutter cleaning" },
-  { id: 6, propertyId: 10, category: "Legal", amount: 320, date: "2026-08-20", note: "Lease renewal review" },
+  { id: 1, propertyId: 2, category: "Other", amount: 93.85, date: "2025-01-01", note: "Rental license fee" },
+  { id: 2, propertyId: 5, category: "Other", amount: 126.5, date: "2025-01-01", note: "Rental license fee" },
+  { id: 3, propertyId: 6, category: "Other", amount: 126.5, date: "2025-01-01", note: "Rental license fee" },
+  { id: 4, propertyId: 7, category: "Other", amount: 93.85, date: "2025-01-01", note: "Rental license fee" },
+  { id: 5, propertyId: 8, category: "Other", amount: 140, date: "2025-01-01", note: "Rental license fee" },
+  { id: 6, propertyId: 9, category: "Other", amount: 65, date: "2025-01-01", note: "Rental license fee" },
+  { id: 7, propertyId: 10, category: "Other", amount: 93.85, date: "2025-01-01", note: "Rental license fee" },
 ];
 
 const CATEGORIES = ["Maintenance", "Repairs", "Insurance", "Property Tax", "Legal", "Utilities", "Other"];
 const PIE_COLORS = [T.pine, T.amber, T.brick, "#5B6660", "#7A9E8E", "#C9A26A", "#8E5B5D"];
 const UTILITY_TYPES = ["Electric", "Gas", "Water/Sewer", "Trash", "Internet"];
 
-// utility accounts per property — kept here for continuity across tenant turnover
-const SEED_UTILITIES = {
-  1: [
-    { id: 1, type: "Electric", provider: "Pepco", account: "6104-882-1130", payer: "Tenant" },
-    { id: 2, type: "Water/Sewer", provider: "WSSC Water", account: "WS-44219", payer: "Landlord" },
-    { id: 3, type: "Trash", provider: "Montgomery County DEP", account: "MC-77410", payer: "Landlord" },
-  ],
-  2: [
-    { id: 1, type: "Electric", provider: "Pepco", account: "6104-772-9012", payer: "Tenant" },
-    { id: 2, type: "Gas", provider: "Washington Gas", account: "WG-55821", payer: "Tenant" },
-    { id: 3, type: "Water/Sewer", provider: "WSSC Water", account: "WS-19087", payer: "Landlord" },
-  ],
-  3: [
-    { id: 1, type: "Electric", provider: "Pepco", account: "6104-341-7723", payer: "Tenant" },
-    { id: 2, type: "Water/Sewer", provider: "WSSC Water", account: "WS-30945", payer: "Landlord" },
-  ],
-  4: [
-    { id: 1, type: "Electric", provider: "Pepco", account: "6104-990-2287", payer: "Tenant" },
-    { id: 2, type: "Gas", provider: "Washington Gas", account: "WG-11238", payer: "Tenant" },
-    { id: 3, type: "Water/Sewer", provider: "WSSC Water", account: "WS-58821", payer: "Landlord" },
-    { id: 4, type: "Trash", provider: "Montgomery County DEP", account: "MC-20194", payer: "Landlord" },
-  ],
-  5: [
-    { id: 1, type: "Electric", provider: "Pepco", account: "6104-118-6634", payer: "Tenant" },
-    { id: 2, type: "Water/Sewer", provider: "WSSC Water", account: "WS-77201", payer: "Landlord" },
-  ],
-  6: [
-    { id: 1, type: "Electric", provider: "Pepco", account: "6104-556-3391", payer: "Tenant" },
-    { id: 2, type: "Water/Sewer", provider: "WSSC Water", account: "WS-40218", payer: "Landlord" },
-    { id: 3, type: "Internet", provider: "Xfinity", account: "XF-90271", payer: "Tenant" },
-  ],
-  7: [
-    { id: 1, type: "Electric", provider: "Pepco", account: "6104-227-8850", payer: "Tenant" },
-    { id: 2, type: "Water/Sewer", provider: "WSSC Water", account: "WS-63317", payer: "Landlord" },
-  ],
-  8: [
-    { id: 1, type: "Electric", provider: "Pepco", account: "6104-664-1128", payer: "Tenant" },
-    { id: 2, type: "Gas", provider: "Washington Gas", account: "WG-77043", payer: "Tenant" },
-    { id: 3, type: "Water/Sewer", provider: "WSSC Water", account: "WS-88512", payer: "Landlord" },
-    { id: 4, type: "Trash", provider: "Montgomery County DEP", account: "MC-33087", payer: "Landlord" },
-  ],
-  9: [
-    { id: 1, type: "Electric", provider: "Pepco", account: "6104-449-2761", payer: "Tenant" },
-    { id: 2, type: "Water/Sewer", provider: "WSSC Water", account: "WS-25610", payer: "Landlord" },
-  ],
-  10: [
-    { id: 1, type: "Electric", provider: "Pepco", account: "6104-803-5514", payer: "Tenant" },
-    { id: 2, type: "Gas", provider: "Washington Gas", account: "WG-38820", payer: "Tenant" },
-    { id: 3, type: "Water/Sewer", provider: "WSSC Water", account: "WS-91274", payer: "Landlord" },
-  ],
-};
+// no utility account numbers were in the source sheet
+const SEED_UTILITIES = {};
 
 const ESCROW_CATEGORIES = ["Property Tax", "Insurance", "HOA", "Other"];
 
-// escrow-style reserves: small monthly contributions build up a balance,
-// then a disbursement draws it down when the actual bill comes due
+// monthly rates from the source sheet, logged as one reference contribution
+// per category per property (not a full contribution history — just the
+// known current rate to start from). Two rows (#1, #3) had ambiguous
+// columns after Insurance — logged as "Other" with a note rather than
+// guessing which was HOA vs Property Tax.
 const SEED_ESCROW = {
   1: [
-    { id: 1, type: "contribution", category: "Property Tax", amount: 310, date: "2026-06-01", note: "Monthly set-aside" },
-    { id: 2, type: "contribution", category: "Property Tax", amount: 310, date: "2026-07-01", note: "Monthly set-aside" },
-    { id: 3, type: "contribution", category: "Property Tax", amount: 310, date: "2026-08-01", note: "Monthly set-aside" },
-    { id: 4, type: "contribution", category: "Insurance", amount: 95, date: "2026-06-01", note: "Monthly set-aside" },
-    { id: 5, type: "contribution", category: "Insurance", amount: 95, date: "2026-07-01", note: "Monthly set-aside" },
-    { id: 6, type: "contribution", category: "Insurance", amount: 95, date: "2026-08-01", note: "Monthly set-aside" },
+    { id: 1, type: "contribution", category: "Insurance", amount: 23.4, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 2, type: "contribution", category: "Other", amount: 465.7, date: "2025-01-01", note: "HOA + Property Tax combined (~$204 + $261.70) — source columns unclear, please split" },
+  ],
+  2: [
+    { id: 1, type: "contribution", category: "Insurance", amount: 32.49, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 2, type: "contribution", category: "HOA", amount: 372.73, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 3, type: "contribution", category: "Property Tax", amount: 251.84, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 4, type: "contribution", category: "Other", amount: 43.77, date: "2025-01-01", note: "Monthly rate per source sheet" },
+  ],
+  3: [
+    { id: 1, type: "contribution", category: "Insurance", amount: 28.1, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 2, type: "contribution", category: "Other", amount: 586.39, date: "2025-01-01", note: "HOA + Property Tax combined (~$365 + $221.39) — source columns unclear, please split" },
   ],
   4: [
-    { id: 1, type: "contribution", category: "Property Tax", amount: 365, date: "2026-06-01", note: "Monthly set-aside" },
-    { id: 2, type: "contribution", category: "Property Tax", amount: 365, date: "2026-07-01", note: "Monthly set-aside" },
-    { id: 3, type: "contribution", category: "Property Tax", amount: 365, date: "2026-08-01", note: "Monthly set-aside" },
-    { id: 4, type: "disbursement", category: "Property Tax", amount: 1450, date: "2026-07-15", note: "Semi-annual county tax bill" },
-    { id: 5, type: "contribution", category: "HOA", amount: 210, date: "2026-06-01", note: "Monthly set-aside" },
-    { id: 6, type: "contribution", category: "HOA", amount: 210, date: "2026-07-01", note: "Monthly set-aside" },
-    { id: 7, type: "contribution", category: "HOA", amount: 210, date: "2026-08-01", note: "Monthly set-aside" },
-    { id: 8, type: "disbursement", category: "HOA", amount: 630, date: "2026-08-01", note: "Quarterly HOA invoice" },
+    { id: 1, type: "contribution", category: "Insurance", amount: 63.98, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 2, type: "contribution", category: "HOA", amount: 50, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 3, type: "contribution", category: "Property Tax", amount: 273.58, date: "2025-01-01", note: "Monthly rate per source sheet" },
+  ],
+  5: [
+    { id: 1, type: "contribution", category: "Insurance", amount: 60.91, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 2, type: "contribution", category: "HOA", amount: 340, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 3, type: "contribution", category: "Property Tax", amount: 235.85, date: "2025-01-01", note: "Monthly rate per source sheet" },
+  ],
+  6: [
+    { id: 1, type: "contribution", category: "Insurance", amount: 37.58, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 2, type: "contribution", category: "HOA", amount: 340, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 3, type: "contribution", category: "Property Tax", amount: 235.67, date: "2025-01-01", note: "Monthly rate per source sheet" },
+  ],
+  7: [
+    { id: 1, type: "contribution", category: "Insurance", amount: 35.93, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 2, type: "contribution", category: "HOA", amount: 380.23, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 3, type: "contribution", category: "Property Tax", amount: 198.32, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 4, type: "contribution", category: "Other", amount: 45.22, date: "2025-01-01", note: "Monthly rate per source sheet" },
   ],
   8: [
-    { id: 1, type: "contribution", category: "Property Tax", amount: 380, date: "2026-06-01", note: "Monthly set-aside" },
-    { id: 2, type: "contribution", category: "Property Tax", amount: 380, date: "2026-07-01", note: "Monthly set-aside" },
-    { id: 3, type: "contribution", category: "Property Tax", amount: 380, date: "2026-08-01", note: "Monthly set-aside" },
-    { id: 4, type: "disbursement", category: "Property Tax", amount: 1450, date: "2026-08-14", note: "Semi-annual county tax bill" },
-    { id: 5, type: "contribution", category: "Insurance", amount: 110, date: "2026-06-01", note: "Monthly set-aside" },
-    { id: 6, type: "contribution", category: "Insurance", amount: 110, date: "2026-07-01", note: "Monthly set-aside" },
-    { id: 7, type: "contribution", category: "Insurance", amount: 110, date: "2026-08-01", note: "Monthly set-aside" },
+    { id: 1, type: "contribution", category: "Insurance", amount: 228.5, date: "2025-01-01", note: "Escrowed with mortgage — per source sheet note" },
+    { id: 2, type: "contribution", category: "Property Tax", amount: 656.98, date: "2025-01-01", note: "Escrowed with mortgage — per source sheet note" },
+  ],
+  9: [
+    { id: 1, type: "contribution", category: "Insurance", amount: 25.75, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 2, type: "contribution", category: "HOA", amount: 322.76, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 3, type: "contribution", category: "Property Tax", amount: 209.85, date: "2025-01-01", note: "Monthly rate per source sheet" },
+  ],
+  10: [
+    { id: 1, type: "contribution", category: "Insurance", amount: 34.41, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 2, type: "contribution", category: "HOA", amount: 405.76, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 3, type: "contribution", category: "Property Tax", amount: 252.85, date: "2025-01-01", note: "Monthly rate per source sheet" },
+    { id: 4, type: "contribution", category: "Other", amount: 43.77, date: "2025-01-01", note: "Monthly rate per source sheet" },
   ],
 };
 
 const DEFAULT_MORTGAGE = { hasMortgage: false, lender: "", rate: "", balance: "", monthlyPayment: "" };
 
-// mortgage details per property — unchecked properties are owned free and clear
+// monthly P&I from the source sheet. Lender, rate, and loan balance weren't
+// in the sheet — left blank for you to fill in on each property's ledger page.
 const SEED_MORTGAGES = {
-  2: { hasMortgage: true, lender: "Chase", rate: "6.25", balance: "312000", monthlyPayment: "2150" },
-  3: { hasMortgage: true, lender: "Wells Fargo", rate: "6.75", balance: "298000", monthlyPayment: "2080" },
-  5: { hasMortgage: true, lender: "Rocket Mortgage", rate: "7.10", balance: "245000", monthlyPayment: "1890" },
-  7: { hasMortgage: true, lender: "Chase", rate: "6.40", balance: "276000", monthlyPayment: "1975" },
-  10: { hasMortgage: true, lender: "US Bank", rate: "6.90", balance: "301000", monthlyPayment: "2210" },
+  2: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1399.17" },
+  4: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1587.44" },
+  5: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1113.24" },
+  6: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1185.56" },
+  7: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1000.00" },
+  8: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1974.52" },
+  9: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "980.37" },
+  10: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1064.00" },
 };
 
-// estimated current market value per property, entered/updated manually (e.g. from an appraisal, a Zestimate, or your own judgment)
-const SEED_MARKET_VALUES = {
-  1: 480000,
-  2: 395000,
-  3: 420000,
-  4: 545000,
-  5: 365000,
-  6: 445000,
-  7: 398000,
-  8: 560000,
-  9: 372000,
-  10: 470000,
-};
+// no market values were in the source sheet — add these on each property's ledger page
+const SEED_MARKET_VALUES = {};
 
 const money = (n) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const STORAGE_KEY = "portfolio-data";
@@ -442,6 +362,17 @@ function nextDueDate(dateStr, recurrence) {
   else if (recurrence === "semi_annual") d.setMonth(d.getMonth() + 6);
   else d.setFullYear(d.getFullYear() + 1); // default annual
   return d.toISOString().slice(0, 10);
+}
+
+// tiered lease-expiration reminder: flags at 90, 60, and 30 days out, then overdue once past end date
+function leaseUrgency(leaseEnd) {
+  if (!leaseEnd) return null;
+  const d = daysUntil(leaseEnd);
+  if (d < 0) return { label: `Lease expired ${Math.abs(d)}d ago`, bg: T.brickSoft, fg: T.brick, tier: "expired" };
+  if (d <= 30) return { label: `Lease expires in ${d}d`, bg: T.brickSoft, fg: T.brick, tier: "30" };
+  if (d <= 60) return { label: `Lease expires in ${d}d`, bg: T.amberSoft, fg: "#8A6A2F", tier: "60" };
+  if (d <= 90) return { label: `Lease expires in ${d}d`, bg: T.amberSoft, fg: "#8A6A2F", tier: "90" };
+  return { label: `Lease renews/expires ${leaseEnd}`, bg: T.pineSoft, fg: T.pine, tier: "ok" };
 }
 
 function statusFor(balance, rent) {
@@ -612,20 +543,21 @@ export default function PortfolioDashboard() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch("/api/portfolio");
-        const json = await res.json();
-        const data = json?.data || {};
-        if (data.properties) setProperties(data.properties);
-        if (data.ledger) setLedger(data.ledger);
-        if (data.expenses) setExpenses(data.expenses);
-        if (data.utilities) setUtilities(data.utilities);
-        if (data.escrow) setEscrow(data.escrow);
-        if (data.mortgages) setMortgages(data.mortgages);
-        if (data.marketValues) setMarketValues(data.marketValues);
-        if (data.providers) setProviders(data.providers);
-        if (data.equipment) setEquipment(data.equipment);
-        if (data.maintenance) setMaintenance(data.maintenance);
-        if (data.compliance) setCompliance(data.compliance);
+        const result = await window.storage.get(STORAGE_KEY, false);
+        if (result && result.value) {
+          const data = JSON.parse(result.value);
+          if (data.properties) setProperties(data.properties);
+          if (data.ledger) setLedger(data.ledger);
+          if (data.expenses) setExpenses(data.expenses);
+          if (data.utilities) setUtilities(data.utilities);
+          if (data.escrow) setEscrow(data.escrow);
+          if (data.mortgages) setMortgages(data.mortgages);
+          if (data.marketValues) setMarketValues(data.marketValues);
+          if (data.providers) setProviders(data.providers);
+          if (data.equipment) setEquipment(data.equipment);
+          if (data.maintenance) setMaintenance(data.maintenance);
+          if (data.compliance) setCompliance(data.compliance);
+        }
       } catch (err) {
         // no saved data yet, or a read error — start from seed data
         console.log("No saved portfolio data found, starting fresh:", err);
@@ -642,13 +574,8 @@ export default function PortfolioDashboard() {
     setSaveStatus("saving");
     const timer = setTimeout(async () => {
       try {
-        const res = await fetch("/api/portfolio", {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance }),
-        });
-        const json = await res.json();
-        setSaveStatus(json?.ok ? "saved" : "error");
+        const result = await window.storage.set(STORAGE_KEY, JSON.stringify({ properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance }), false);
+        setSaveStatus(result ? "saved" : "error");
       } catch (err) {
         console.error("Failed to save portfolio data:", err);
         setSaveStatus("error");
@@ -711,7 +638,11 @@ export default function PortfolioDashboard() {
     const netPortfolioValue = marketValueTotal - mortgageDebt;
     const net = collectedAugust - expenseTotal - debtService;
     const complianceDueSoon = compliance.filter((c) => c.status !== "completed" && daysUntil(c.dueDate) <= 30).length;
-    return { rentRoll, collectedAugust, outstanding, expenseTotal, net, reservesHeld, debtService, mortgageDebt, marketValueTotal, netPortfolioValue, complianceDueSoon };
+    const leasesExpiringSoon = properties.filter((p) => {
+      const lu = leaseUrgency(p.leaseEnd);
+      return lu && lu.tier !== "ok";
+    }).length;
+    return { rentRoll, collectedAugust, outstanding, expenseTotal, net, reservesHeld, debtService, mortgageDebt, marketValueTotal, netPortfolioValue, complianceDueSoon, leasesExpiringSoon };
   }, [properties, ledger, balances, expenses, escrow, mortgages, marketValues, compliance]);
 
   const byProperty = useMemo(
@@ -816,6 +747,7 @@ export default function PortfolioDashboard() {
               updateMarketValue={updateMarketValue}
               expenses={expenses}
               equipment={equipment}
+              updateProperty={updateProperty}
               equipmentForm={equipmentForm}
               setEquipmentForm={setEquipmentForm}
               addEquipment={addEquipment}
@@ -908,6 +840,7 @@ function Overview({ stats, properties, balances, goToLedger }) {
         <KpiCard label="Total mortgage debt" value={money(stats.mortgageDebt)} tone="brick" />
         <KpiCard label="Net portfolio value" value={money(stats.netPortfolioValue)} tone="pine" />
         <KpiCard label="Compliance due ≤30d" value={String(stats.complianceDueSoon)} tone={stats.complianceDueSoon > 0 ? "brick" : "ink"} />
+        <KpiCard label="Leases expiring ≤90d" value={String(stats.leasesExpiringSoon)} tone={stats.leasesExpiringSoon > 0 ? "brick" : "ink"} />
       </div>
 
       <SectionTitle title="Balances by property" subtitle="Click a property to open its ledger" />
@@ -943,6 +876,9 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
       .filter((eq) => eq.age >= eq.lifespan - 2)
   );
   const openMaintenance = maintenance.filter((m) => m.status === "scheduled" || m.status === "in_progress");
+  const leasesNeedingAttention = properties
+    .map((p) => ({ property: p, urgency: leaseUrgency(p.leaseEnd) }))
+    .filter((x) => x.urgency && x.urgency.tier !== "ok");
   const propertyName = (id) => properties.find((p) => p.id === id)?.name || "—";
 
   const performanceRows = properties.map((p) => ({
@@ -962,8 +898,11 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
         <KpiCard label="Reserves held" value={money(stats.reservesHeld)} />
       </div>
 
-      <SectionTitle title="Needs attention" subtitle="Compliance overdue or due soon, equipment nearing end of life, open maintenance" />
+      <SectionTitle title="Needs attention" subtitle="Leases expiring soon, compliance overdue or due soon, equipment nearing end of life, open maintenance" />
       <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 28 }}>
+        {leasesNeedingAttention.map(({ property, urgency }) => (
+          <AttentionRow key={`l-${property.id}`} icon={ScrollText} tone={urgency.tier === "expired" || urgency.tier === "30" ? "brick" : "amber"} label={`Lease — ${property.name}`} detail={urgency.label} />
+        ))}
         {overdueCompliance.map((c) => (
           <AttentionRow key={`c-${c.id}`} icon={AlertTriangle} tone="brick" label={`${c.itemType} overdue — ${propertyName(c.propertyId ?? null)}`} detail={`Was due ${c.dueDate}`} />
         ))}
@@ -976,7 +915,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
         {openMaintenance.map((m) => (
           <AttentionRow key={`m-${m.id}`} icon={Wrench} tone="pine" label={`${m.description} — ${propertyName(m.propertyId)}`} detail={`${m.status === "in_progress" ? "In progress" : "Scheduled"} for ${m.scheduledDate}`} />
         ))}
-        {overdueCompliance.length + dueSoonCompliance.length + equipmentNeedingReplacement.length + openMaintenance.length === 0 && (
+        {leasesNeedingAttention.length + overdueCompliance.length + dueSoonCompliance.length + equipmentNeedingReplacement.length + openMaintenance.length === 0 && (
           <div style={{ color: T.inkSoft, fontStyle: "italic" }}>Nothing needs attention right now.</div>
         )}
       </div>
@@ -1149,7 +1088,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
   );
 }
 
-function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form, setForm, addEntry, utilities, utilityForm, setUtilityForm, addUtility, removeUtility, escrow, escrowForm, setEscrowForm, addEscrowEntry, removeEscrowEntry, mortgages, updateMortgage, marketValues, updateMarketValue, expenses, equipment, equipmentForm, setEquipmentForm, addEquipment, removeEquipment }) {
+function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form, setForm, addEntry, utilities, utilityForm, setUtilityForm, addUtility, removeUtility, escrow, escrowForm, setEscrowForm, addEscrowEntry, removeEscrowEntry, mortgages, updateMortgage, marketValues, updateMarketValue, expenses, equipment, equipmentForm, setEquipmentForm, addEquipment, removeEquipment, updateProperty }) {
   const property = properties.find((p) => p.id === selectedId);
   const perf = useMemo(() => propertyPerformance(property, { marketValues, mortgages, expenses }), [property, marketValues, mortgages, expenses]);
   const entries = useMemo(() => {
@@ -1230,6 +1169,30 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
           </div>
           <div style={{ fontSize: 11, color: T.inkSoft, marginTop: 10, fontStyle: "italic" }}>
             Cap rate is estimated from rent minus expenses logged on file — not a full-year actual.
+          </div>
+        </div>
+
+        <div style={{ background: T.paper, border: `1px solid ${T.line}`, borderRadius: 8, padding: "12px 16px", marginBottom: 20 }}>
+          <div style={{ display: "flex", gap: 18, alignItems: "flex-end", flexWrap: "wrap" }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Lease start
+              <input style={inputStyle} type="date" value={property.leaseStart || ""} onChange={(e) => updateProperty(selectedId, "leaseStart", e.target.value)} />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Lease end
+              <input style={inputStyle} type="date" value={property.leaseEnd || ""} onChange={(e) => updateProperty(selectedId, "leaseEnd", e.target.value)} />
+            </label>
+            {(() => {
+              const lu = leaseUrgency(property.leaseEnd);
+              return lu ? (
+                <span style={{ background: lu.bg, color: lu.fg, fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 20, marginBottom: 2 }}>{lu.label}</span>
+              ) : (
+                <span style={{ fontSize: 12, color: T.inkSoft, marginBottom: 8 }}>No lease end date on file</span>
+              );
+            })()}
+          </div>
+          <div style={{ fontSize: 11, color: T.inkSoft, marginTop: 10, fontStyle: "italic" }}>
+            Flags at 90, 60, and 30 days before lease end, then marks it expired after.
           </div>
         </div>
 
