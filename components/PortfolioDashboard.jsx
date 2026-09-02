@@ -6,8 +6,8 @@ import {
   PieChart, Pie, Cell,
 } from "recharts";
 import {
-  BookOpen, Building2, Receipt, BarChart3, Plus, Trash2, ChevronRight, ScrollText,
-  Wrench, Phone, Mail, AlertTriangle, TrendingUp,
+  BookOpen, Building2, Receipt, BarChart3, Plus, Trash2, ChevronRight, ChevronDown, ScrollText,
+  Wrench, Phone, Mail, AlertTriangle, TrendingUp, Home,
 } from "lucide-react";
 
 // ---------- design tokens ----------
@@ -155,16 +155,16 @@ const FONTS = `
 //   #9  267 Cobblestone Ct: ~04/2022–04/2023, only 11 of 12 months occupied
 //   #10 11410 Little Patuxent Pkwy #1001: no lease dates given in source
 const SEED_PROPERTIES = [
-  { id: 1, name: "810B Stratford Way", city: "Frederick, MD", tenant: "", rent: 1800, leaseStart: "2022-05-07", leaseEnd: "2023-04-30" },
-  { id: 2, name: "11510 Little Patuxent Pkwy #407", city: "Columbia, MD", tenant: "", rent: 2100, leaseStart: "2022-10-30", leaseEnd: "2023-11-30" },
-  { id: 3, name: "10249 Prince Pl", city: "", tenant: "", rent: 1700, leaseStart: "", leaseEnd: "2023-12-31" },
-  { id: 4, name: "1624 Northbourne Rd", city: "Baltimore, MD", tenant: "", rent: 1975, leaseStart: "2022-06-15", leaseEnd: "2023-06-30" },
-  { id: 5, name: "2061 Alice Ave #203", city: "Oxon Hill, MD", tenant: "", rent: 1750, leaseStart: "2021-11-01", leaseEnd: "2022-11-30" },
-  { id: 6, name: "2000 Alice Ave #301", city: "Oxon Hill, MD", tenant: "", rent: 1775, leaseStart: "2022-07-01", leaseEnd: "2024-07-31" },
-  { id: 7, name: "11415 Little Patuxent Pkwy #4-108", city: "Columbia, MD", tenant: "", rent: 1650, leaseStart: "2022-01-15", leaseEnd: "2022-12-31" },
-  { id: 8, name: "5809 Greenlawn Dr", city: "Bethesda, MD", tenant: "", rent: 4200, leaseStart: "2021-04-01", leaseEnd: "2023-04-30" },
-  { id: 9, name: "267 Cobblestone Ct", city: "Schaumburg, IL", tenant: "", rent: 2700, leaseStart: "2022-04-01", leaseEnd: "2023-04-30" },
-  { id: 10, name: "11410 Little Patuxent Pkwy #1001", city: "Columbia, MD", tenant: "", rent: 1900, leaseStart: "", leaseEnd: "" },
+  { id: 1, name: "810B Stratford Way", city: "Frederick, MD", tenant: "", rent: 1800, leaseStart: "2022-05-07", leaseEnd: "2023-04-30", owningEntity: "", bedrooms: "", sqft: "", propertyType: "", dateAcquired: "", purchasePrice: "", renovationSpend: "", insuranceCompany: "", insurancePolicy: "", insuranceExpiration: "", rentEstimate: "", bathrooms: "", tenantPhone: "", tenantEmail: "", hoaManagementName: "", hoaManagementPhone: "", hoaManagementWebsite: "" , annualPropertyTax: "", annualLicense: "" },
+  { id: 2, name: "11510 Little Patuxent Pkwy #407", city: "Columbia, MD", tenant: "", rent: 2100, leaseStart: "2022-10-30", leaseEnd: "2023-11-30", owningEntity: "", bedrooms: "", sqft: "", propertyType: "", dateAcquired: "", purchasePrice: "", renovationSpend: "", insuranceCompany: "", insurancePolicy: "", insuranceExpiration: "", rentEstimate: "", bathrooms: "", tenantPhone: "", tenantEmail: "", hoaManagementName: "", hoaManagementPhone: "", hoaManagementWebsite: "" , annualPropertyTax: 3022.08, annualLicense: "" },
+  { id: 3, name: "10249 Prince Pl", city: "", tenant: "", rent: 1700, leaseStart: "", leaseEnd: "2023-12-31", owningEntity: "", bedrooms: "", sqft: "", propertyType: "", dateAcquired: "", purchasePrice: "", renovationSpend: "", insuranceCompany: "", insurancePolicy: "", insuranceExpiration: "", rentEstimate: "", bathrooms: "", tenantPhone: "", tenantEmail: "", hoaManagementName: "", hoaManagementPhone: "", hoaManagementWebsite: "" , annualPropertyTax: "", annualLicense: "" },
+  { id: 4, name: "1624 Northbourne Rd", city: "Baltimore, MD", tenant: "", rent: 1975, leaseStart: "2022-06-15", leaseEnd: "2023-06-30", owningEntity: "", bedrooms: "", sqft: "", propertyType: "", dateAcquired: "", purchasePrice: "", renovationSpend: "", insuranceCompany: "", insurancePolicy: "", insuranceExpiration: "", rentEstimate: "", bathrooms: "", tenantPhone: "", tenantEmail: "", hoaManagementName: "", hoaManagementPhone: "", hoaManagementWebsite: "" , annualPropertyTax: 3282.96, annualLicense: "" },
+  { id: 5, name: "2061 Alice Ave #203", city: "Oxon Hill, MD", tenant: "", rent: 1750, leaseStart: "2021-11-01", leaseEnd: "2022-11-30", owningEntity: "", bedrooms: "", sqft: "", propertyType: "", dateAcquired: "", purchasePrice: "", renovationSpend: "", insuranceCompany: "", insurancePolicy: "", insuranceExpiration: "", rentEstimate: "", bathrooms: "", tenantPhone: "", tenantEmail: "", hoaManagementName: "", hoaManagementPhone: "", hoaManagementWebsite: "" , annualPropertyTax: 2830.2, annualLicense: "" },
+  { id: 6, name: "2000 Alice Ave #301", city: "Oxon Hill, MD", tenant: "", rent: 1775, leaseStart: "2022-07-01", leaseEnd: "2024-07-31", owningEntity: "", bedrooms: "", sqft: "", propertyType: "", dateAcquired: "", purchasePrice: "", renovationSpend: "", insuranceCompany: "", insurancePolicy: "", insuranceExpiration: "", rentEstimate: "", bathrooms: "", tenantPhone: "", tenantEmail: "", hoaManagementName: "", hoaManagementPhone: "", hoaManagementWebsite: "" , annualPropertyTax: 2828.04, annualLicense: "" },
+  { id: 7, name: "11415 Little Patuxent Pkwy #4-108", city: "Columbia, MD", tenant: "", rent: 1650, leaseStart: "2022-01-15", leaseEnd: "2022-12-31", owningEntity: "", bedrooms: "", sqft: "", propertyType: "", dateAcquired: "", purchasePrice: "", renovationSpend: "", insuranceCompany: "", insurancePolicy: "", insuranceExpiration: "", rentEstimate: "", bathrooms: "", tenantPhone: "", tenantEmail: "", hoaManagementName: "", hoaManagementPhone: "", hoaManagementWebsite: "" , annualPropertyTax: 2379.84, annualLicense: "" },
+  { id: 8, name: "5809 Greenlawn Dr", city: "Bethesda, MD", tenant: "", rent: 4200, leaseStart: "2021-04-01", leaseEnd: "2023-04-30", owningEntity: "", bedrooms: "", sqft: "", propertyType: "", dateAcquired: "", purchasePrice: "", renovationSpend: "", insuranceCompany: "", insurancePolicy: "", insuranceExpiration: "", rentEstimate: "", bathrooms: "", tenantPhone: "", tenantEmail: "", hoaManagementName: "", hoaManagementPhone: "", hoaManagementWebsite: "" , annualPropertyTax: 7883.76, annualLicense: "" },
+  { id: 9, name: "267 Cobblestone Ct", city: "Schaumburg, IL", tenant: "", rent: 2700, leaseStart: "2022-04-01", leaseEnd: "2023-04-30", owningEntity: "", bedrooms: "", sqft: "", propertyType: "", dateAcquired: "", purchasePrice: "", renovationSpend: "", insuranceCompany: "", insurancePolicy: "", insuranceExpiration: "", rentEstimate: "", bathrooms: "", tenantPhone: "", tenantEmail: "", hoaManagementName: "", hoaManagementPhone: "", hoaManagementWebsite: "" , annualPropertyTax: 2518.2, annualLicense: "" },
+  { id: 10, name: "11410 Little Patuxent Pkwy #1001", city: "Columbia, MD", tenant: "", rent: 1900, leaseStart: "", leaseEnd: "", owningEntity: "", bedrooms: "", sqft: "", propertyType: "", dateAcquired: "", purchasePrice: "", renovationSpend: "", insuranceCompany: "", insurancePolicy: "", insuranceExpiration: "", rentEstimate: "", bathrooms: "", tenantPhone: "", tenantEmail: "", hoaManagementName: "", hoaManagementPhone: "", hoaManagementWebsite: "" , annualPropertyTax: 3034.2, annualLicense: "" },
 ];
 
 // No transaction history was in the source sheet (it's an annual summary,
@@ -251,19 +251,20 @@ const SEED_ESCROW = {
   ],
 };
 
-const DEFAULT_MORTGAGE = { hasMortgage: false, lender: "", rate: "", balance: "", monthlyPayment: "" };
+const DEFAULT_MORTGAGE = { hasMortgage: false, lender: "", loanNumber: "", rate: "", balance: "", monthlyPayment: "" };
 
-// monthly P&I from the source sheet. Lender, rate, and loan balance weren't
-// in the sheet — left blank for you to fill in on each property's ledger page.
+// monthly P&I from the source sheet. Lender, loan number, rate, and loan
+// balance weren't in the sheet — left blank for you to fill in on each
+// property's ledger page.
 const SEED_MORTGAGES = {
-  2: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1399.17" },
-  4: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1587.44" },
-  5: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1113.24" },
-  6: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1185.56" },
-  7: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1000.00" },
-  8: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1974.52" },
-  9: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "980.37" },
-  10: { hasMortgage: true, lender: "", rate: "", balance: "", monthlyPayment: "1064.00" },
+  2: { hasMortgage: true, lender: "", loanNumber: "", rate: "", balance: "", monthlyPayment: "1399.17" },
+  4: { hasMortgage: true, lender: "", loanNumber: "", rate: "", balance: "", monthlyPayment: "1587.44" },
+  5: { hasMortgage: true, lender: "", loanNumber: "", rate: "", balance: "", monthlyPayment: "1113.24" },
+  6: { hasMortgage: true, lender: "", loanNumber: "", rate: "", balance: "", monthlyPayment: "1185.56" },
+  7: { hasMortgage: true, lender: "", loanNumber: "", rate: "", balance: "", monthlyPayment: "1000.00" },
+  8: { hasMortgage: true, lender: "", loanNumber: "", rate: "", balance: "", monthlyPayment: "1974.52" },
+  9: { hasMortgage: true, lender: "", loanNumber: "", rate: "", balance: "", monthlyPayment: "980.37" },
+  10: { hasMortgage: true, lender: "", loanNumber: "", rate: "", balance: "", monthlyPayment: "1064.00" },
 };
 
 // no market values were in the source sheet — add these on each property's ledger page
@@ -271,7 +272,17 @@ const SEED_MARKET_VALUES = {};
 
 const money = (n) => n.toLocaleString("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 });
 const STORAGE_KEY = "portfolio-data";
-const TODAY = "2026-08-28";
+// today's date, computed from local calendar date components directly
+// (avoiding a UTC round-trip, which would shift the date by one near midnight
+// in timezones behind UTC — the classic source of off-by-a-day bugs)
+function getTodayISO() {
+  const d = new Date();
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+const TODAY = getTodayISO();
 
 // service provider directory — plumbers, HVAC techs, handymen, etc.
 const SEED_PROVIDERS = [
@@ -332,6 +343,30 @@ function escrowBalanceFor(escrow, propertyId) {
   return (escrow[propertyId] || []).reduce((s, e) => s + (e.type === "contribution" ? e.amount : -e.amount), 0);
 }
 
+// current monthly rate per category, taken from the most recent contribution
+// logged for that category (contributions represent "what's set aside this
+// month," so the latest one is the best read of today's rate). Also returns
+// the note on the latest "Other" entry, so it can be shown as "Other (note)".
+function escrowMonthlyRates(escrow, propertyId) {
+  const entries = (escrow[propertyId] || []).filter((e) => e.type === "contribution");
+  const rates = { "Property Tax": 0, Insurance: 0, HOA: 0, Other: 0 };
+  let otherNote = "";
+  ["Property Tax", "Insurance", "HOA", "Other"].forEach((cat) => {
+    const forCat = entries.filter((e) => e.category === cat).sort((a, b) => a.date.localeCompare(b.date));
+    if (forCat.length) {
+      rates[cat] = forCat[forCat.length - 1].amount;
+      if (cat === "Other") otherNote = forCat[forCat.length - 1].note || "";
+    }
+  });
+  return { ...rates, otherNote };
+}
+
+// "Other" entries show their note in parentheses (e.g. "Other (Columbia Assoc. fees)"); everything else shows plain
+function escrowCategoryLabel(entry) {
+  if (entry.category === "Other" && entry.note) return `Other (${entry.note})`;
+  return entry.category;
+}
+
 function equipmentAgeYears(installDate) {
   const install = new Date(installDate);
   const today = new Date(TODAY);
@@ -359,11 +394,18 @@ function complianceUrgency(item) {
 }
 
 function nextDueDate(dateStr, recurrence) {
-  const d = new Date(dateStr);
-  if (recurrence === "quarterly") d.setMonth(d.getMonth() + 3);
-  else if (recurrence === "semi_annual") d.setMonth(d.getMonth() + 6);
-  else d.setFullYear(d.getFullYear() + 1); // default annual
-  return d.toISOString().slice(0, 10);
+  // pure numeric arithmetic on the y/m/d components — avoids the bug where
+  // new Date(dateStr) parses as UTC midnight but setMonth/setFullYear mutate
+  // in local time, which can shift the result by a day depending on timezone
+  let [y, m, d] = dateStr.split("-").map(Number);
+  if (recurrence === "quarterly") m += 3;
+  else if (recurrence === "semi_annual") m += 6;
+  else y += 1; // default annual
+  y += Math.floor((m - 1) / 12);
+  m = ((((m - 1) % 12) + 12) % 12) + 1;
+  const daysInTargetMonth = new Date(y, m, 0).getDate(); // day 0 of next month = last day of this month
+  d = Math.min(d, daysInTargetMonth);
+  return `${String(y).padStart(4, "0")}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
 }
 
 // tiered lease-expiration reminder: flags at 90, 60, and 30 days out, then overdue once past end date
@@ -377,14 +419,26 @@ function leaseUrgency(leaseEnd) {
   return { label: `Lease renews/expires ${leaseEnd}`, bg: T.pineSoft, fg: T.pine, tier: "ok" };
 }
 
+// same tiered 90/60/30-day pattern as leaseUrgency, applied to insurance policy expiration
+function insuranceUrgency(expirationDate) {
+  if (!expirationDate) return null;
+  const d = daysUntil(expirationDate);
+  if (d < 0) return { label: `Insurance expired ${Math.abs(d)}d ago`, bg: T.brickSoft, fg: T.brick, tier: "expired" };
+  if (d <= 30) return { label: `Insurance expires in ${d}d`, bg: T.brickSoft, fg: T.brick, tier: "30" };
+  if (d <= 60) return { label: `Insurance expires in ${d}d`, bg: T.amberSoft, fg: "#8A6A2F", tier: "60" };
+  if (d <= 90) return { label: `Insurance expires in ${d}d`, bg: T.amberSoft, fg: "#8A6A2F", tier: "90" };
+  return { label: `Insurance renews/expires ${expirationDate}`, bg: T.pineSoft, fg: T.pine, tier: "ok" };
+}
+
 function statusFor(balance, rent) {
   if (balance <= 0) return { label: "Current", bg: T.pineSoft, fg: T.pine };
   if (balance < rent) return { label: `Owes ${money(balance)}`, bg: T.amberSoft, fg: "#8A6A2F" };
   return { label: `Behind ${money(balance)}`, bg: T.brickSoft, fg: T.brick };
 }
 
-// pulls together value, debt, and rent data into investment-performance metrics for one property
-function propertyPerformance(property, { marketValues, mortgages, expenses }) {
+// pulls together value, debt, rent, and recurring-cost data into a full
+// monthly P&L for one property, plus investment-performance metrics
+function propertyPerformance(property, { marketValues, mortgages, expenses, escrow }) {
   const marketValue = Number(marketValues[property.id]) || 0;
   const m = mortgages[property.id];
   const loanBalance = m && m.hasMortgage ? Number(m.balance) || 0 : 0;
@@ -395,8 +449,18 @@ function propertyPerformance(property, { marketValues, mortgages, expenses }) {
   const noi = annualRent - expensesLogged; // approximate — based on expenses on file, not a full-year actual
   const capRate = marketValue > 0 ? (noi / marketValue) * 100 : 0;
   const grossYield = marketValue > 0 ? (annualRent / marketValue) * 100 : 0;
-  const estMonthlyCashFlow = property.rent - debtService;
-  return { marketValue, loanBalance, equity, debtService, expensesLogged, capRate, grossYield, estMonthlyCashFlow };
+
+  const rates = escrowMonthlyRates(escrow, property.id);
+  const monthlyPropertyTax = (Number(property.annualPropertyTax) || 0) / 12;
+  const totalMonthlyExpenses = monthlyPropertyTax + rates.Insurance + rates.HOA + rates.Other + debtService;
+  const netMonthlyIncome = property.rent - totalMonthlyExpenses;
+
+  return {
+    marketValue, loanBalance, equity, debtService, expensesLogged, capRate, grossYield,
+    propertyTax: monthlyPropertyTax, insurance: rates.Insurance, hoa: rates.HOA, other: rates.Other, otherNote: rates.otherNote,
+    totalMonthlyExpenses, netMonthlyIncome,
+    estMonthlyCashFlow: netMonthlyIncome, // kept for compatibility with existing callers
+  };
 }
 
 export default function PortfolioDashboard() {
@@ -409,7 +473,16 @@ export default function PortfolioDashboard() {
   const addProperty = () => {
     if (!newPropertyForm.name) return;
     const id = Date.now();
-    setProperties((ps) => [...ps, { id, name: newPropertyForm.name, city: newPropertyForm.city, tenant: newPropertyForm.tenant, rent: Number(newPropertyForm.rent) || 0 }]);
+    setProperties((ps) => [
+      ...ps,
+      {
+        id, name: newPropertyForm.name, city: newPropertyForm.city, tenant: newPropertyForm.tenant, rent: Number(newPropertyForm.rent) || 0,
+        leaseStart: "", leaseEnd: "", owningEntity: "", bedrooms: "", bathrooms: "", sqft: "", propertyType: "", dateAcquired: "",
+        purchasePrice: "", renovationSpend: "", insuranceCompany: "", insurancePolicy: "", insuranceExpiration: "", rentEstimate: "",
+        tenantPhone: "", tenantEmail: "", hoaManagementName: "", hoaManagementPhone: "", hoaManagementWebsite: "",
+        annualPropertyTax: "", annualLicense: "",
+      },
+    ]);
     setNewPropertyForm({ name: "", city: "", tenant: "", rent: "" });
   };
 
@@ -441,10 +514,12 @@ export default function PortfolioDashboard() {
   const [equipment, setEquipment] = useState(SEED_EQUIPMENT);
   const [maintenance, setMaintenance] = useState(SEED_MAINTENANCE);
   const [compliance, setCompliance] = useState(SEED_COMPLIANCE);
+  const [annualExpenses, setAnnualExpenses] = useState({});
+  const [taxRate, setTaxRate] = useState("22");
   const [tab, setTab] = useState("overview");
   const [selectedId, setSelectedId] = useState(SEED_PROPERTIES[0].id);
   const [ledgerForm, setLedgerForm] = useState({ type: "payment", amount: "", date: "", note: "" });
-  const [expenseForm, setExpenseForm] = useState({ propertyId: SEED_PROPERTIES[0].id, category: CATEGORIES[0], amount: "", date: "", note: "" });
+  const [expenseForm, setExpenseForm] = useState({ propertyId: SEED_PROPERTIES[0].id, category: CATEGORIES[0], vendor: "", amount: "", date: "", note: "" });
   const [utilityForm, setUtilityForm] = useState({ type: UTILITY_TYPES[0], provider: "", account: "", payer: "Tenant" });
   const [escrowForm, setEscrowForm] = useState({ type: "contribution", category: ESCROW_CATEGORIES[0], amount: "", date: "", note: "" });
   const [loaded, setLoaded] = useState(false);
@@ -462,6 +537,17 @@ export default function PortfolioDashboard() {
   const removeEscrowEntry = (propertyId, id) =>
     setEscrow((es) => ({ ...es, [propertyId]: es[propertyId].filter((x) => x.id !== id) }));
 
+  // quick-edit from the P&L box: posts a new dated contribution so the rate
+  // updates going forward while keeping the prior rate in the Reserves history
+  const setCurrentRate = (propertyId, category, amount, note) =>
+    setEscrow((es) => ({
+      ...es,
+      [propertyId]: [
+        ...(es[propertyId] || []),
+        { id: Date.now(), type: "contribution", category, amount: Number(amount) || 0, date: TODAY, note: note !== undefined ? note : "Rate updated" },
+      ],
+    }));
+
   const updateMortgage = (propertyId, field, value) =>
     setMortgages((m) => ({ ...m, [propertyId]: { ...(m[propertyId] || DEFAULT_MORTGAGE), [field]: value } }));
 
@@ -470,8 +556,8 @@ export default function PortfolioDashboard() {
 
   const [providerForm, setProviderForm] = useState({ name: "", trade: "", phone: "", email: "", notes: "" });
   const addProvider = () => {
-    if (!providerForm.name || !providerForm.trade) return;
-    setProviders((ps) => [...ps, { id: Date.now(), ...providerForm }]);
+    if (!providerForm.name.trim()) return;
+    setProviders((ps) => [...ps, { id: Date.now(), ...providerForm, trade: providerForm.trade.trim() || "General" }]);
     setProviderForm({ name: "", trade: "", phone: "", email: "", notes: "" });
   };
   const removeProvider = (id) => setProviders((ps) => ps.filter((p) => p.id !== id));
@@ -512,22 +598,28 @@ export default function PortfolioDashboard() {
     setMaintenance((ms) => ms.map((m) => (m.id === id ? { ...m, status, completedDate: status === "completed" ? TODAY : m.completedDate } : m)));
   const removeMaintenance = (id) => setMaintenance((ms) => ms.filter((m) => m.id !== id));
 
-  const [complianceForm, setComplianceForm] = useState({ propertyId: "", itemType: "Rental License", description: "", dueDate: "", recurrence: "annual" });
-  const addCompliance = () => {
-    if (!complianceForm.dueDate) return;
+  const [complianceForm, setComplianceForm] = useState({ propertyId: "", itemType: "Rental License", description: "", dueDate: "", recurrence: "annual", amount: "" });
+
+  const addComplianceEntry = (propertyId, fields) => {
+    if (!fields.dueDate) return;
     setCompliance((cs) => [
       ...cs,
       {
         id: Date.now(),
-        propertyId: complianceForm.propertyId ? Number(complianceForm.propertyId) : null,
-        itemType: complianceForm.itemType,
-        description: complianceForm.description,
-        dueDate: complianceForm.dueDate,
-        recurrence: complianceForm.recurrence,
+        propertyId,
+        itemType: fields.itemType,
+        description: fields.description,
+        dueDate: fields.dueDate,
+        recurrence: fields.recurrence,
+        amount: fields.amount ? Number(fields.amount) : null,
         status: "upcoming",
       },
     ]);
-    setComplianceForm({ propertyId: "", itemType: "Rental License", description: "", dueDate: "", recurrence: "annual" });
+  };
+
+  const addCompliance = () => {
+    addComplianceEntry(complianceForm.propertyId ? Number(complianceForm.propertyId) : null, complianceForm);
+    setComplianceForm({ propertyId: "", itemType: "Rental License", description: "", dueDate: "", recurrence: "annual", amount: "" });
   };
   const markComplianceDone = (id, renew) =>
     setCompliance((cs) =>
@@ -540,6 +632,16 @@ export default function PortfolioDashboard() {
       })
     );
   const removeCompliance = (id) => setCompliance((cs) => cs.filter((c) => c.id !== id));
+
+  const addAnnualExpense = (propertyId, description, amount) => {
+    if (!description || !amount) return;
+    setAnnualExpenses((ae) => ({
+      ...ae,
+      [propertyId]: [...(ae[propertyId] || []), { id: Date.now(), description, amount: Number(amount) || 0 }],
+    }));
+  };
+  const removeAnnualExpense = (propertyId, id) =>
+    setAnnualExpenses((ae) => ({ ...ae, [propertyId]: (ae[propertyId] || []).filter((x) => x.id !== id) }));
 
   // load saved data once on mount; fall back to seed data if nothing saved yet
   useEffect(() => {
@@ -559,6 +661,8 @@ export default function PortfolioDashboard() {
         if (data.equipment) setEquipment(data.equipment);
         if (data.maintenance) setMaintenance(data.maintenance);
         if (data.compliance) setCompliance(data.compliance);
+        if (data.annualExpenses) setAnnualExpenses(data.annualExpenses);
+        if (data.taxRate) setTaxRate(data.taxRate);
       } catch (err) {
         // no saved data yet, or a read error — start from seed data
         console.log("No saved portfolio data found, starting fresh:", err);
@@ -578,7 +682,7 @@ export default function PortfolioDashboard() {
         const res = await fetch("/api/portfolio", {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance }),
+          body: JSON.stringify({ properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance, annualExpenses, taxRate }),
         });
         const json = await res.json();
         setSaveStatus(json?.ok ? "saved" : "error");
@@ -588,7 +692,7 @@ export default function PortfolioDashboard() {
       }
     }, 500); // debounce so rapid edits don't fire a save per keystroke
     return () => clearTimeout(timer);
-  }, [properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance]);
+  }, [properties, ledger, expenses, utilities, escrow, mortgages, marketValues, providers, equipment, maintenance, compliance, annualExpenses, taxRate]);
 
   const addUtility = () => {
     if (!utilityForm.provider || !utilityForm.account) return;
@@ -619,10 +723,10 @@ export default function PortfolioDashboard() {
   const addExpense = () => {
     if (!expenseForm.amount || !expenseForm.date) return;
     setExpenses((es) => [
-      { id: Date.now(), propertyId: Number(expenseForm.propertyId), category: expenseForm.category, amount: Number(expenseForm.amount), date: expenseForm.date, note: expenseForm.note },
+      { id: Date.now(), propertyId: Number(expenseForm.propertyId), category: expenseForm.category, vendor: expenseForm.vendor, amount: Number(expenseForm.amount), date: expenseForm.date, note: expenseForm.note },
       ...es,
     ]);
-    setExpenseForm((f) => ({ ...f, amount: "", date: "", note: "" }));
+    setExpenseForm((f) => ({ ...f, vendor: "", amount: "", date: "", note: "" }));
   };
   const removeExpense = (id) => setExpenses((es) => es.filter((e) => e.id !== id));
 
@@ -643,12 +747,36 @@ export default function PortfolioDashboard() {
     const marketValueTotal = properties.reduce((s, p) => s + (Number(marketValues[p.id]) || 0), 0);
     const netPortfolioValue = marketValueTotal - mortgageDebt;
     const net = collectedAugust - expenseTotal - debtService;
+
+    // portfolio-wide P&L, built from the same per-property rates used on each
+    // property's ledger page — so the totals here always tie out to the sum
+    // of each property's own "Net monthly income" figure
+    let totalPropertyTax = 0, totalInsurance = 0, totalHOA = 0, totalOtherRecurring = 0;
+    properties.forEach((p) => {
+      const rates = escrowMonthlyRates(escrow, p.id);
+      totalPropertyTax += (Number(p.annualPropertyTax) || 0) / 12;
+      totalInsurance += rates.Insurance;
+      totalHOA += rates.HOA;
+      totalOtherRecurring += rates.Other;
+    });
+    const totalMonthlyExpenses = totalPropertyTax + totalInsurance + totalHOA + totalOtherRecurring + debtService;
+    const netMonthlyIncome = rentRoll - totalMonthlyExpenses;
+
     const complianceDueSoon = compliance.filter((c) => c.status !== "completed" && daysUntil(c.dueDate) <= 30).length;
     const leasesExpiringSoon = properties.filter((p) => {
       const lu = leaseUrgency(p.leaseEnd);
       return lu && lu.tier !== "ok";
     }).length;
-    return { rentRoll, collectedAugust, outstanding, expenseTotal, net, reservesHeld, debtService, mortgageDebt, marketValueTotal, netPortfolioValue, complianceDueSoon, leasesExpiringSoon };
+    const insuranceExpiringSoon = properties.filter((p) => {
+      const iu = insuranceUrgency(p.insuranceExpiration);
+      return iu && iu.tier !== "ok";
+    }).length;
+    const totalNotifications = complianceDueSoon + leasesExpiringSoon + insuranceExpiringSoon;
+    return {
+      rentRoll, collectedAugust, outstanding, expenseTotal, net, reservesHeld, debtService, mortgageDebt,
+      marketValueTotal, netPortfolioValue, complianceDueSoon, leasesExpiringSoon, insuranceExpiringSoon, totalNotifications,
+      totalPropertyTax, totalInsurance, totalHOA, totalOtherRecurring, totalMonthlyExpenses, netMonthlyIncome,
+    };
   }, [properties, ledger, balances, expenses, escrow, mortgages, marketValues, compliance]);
 
   const byProperty = useMemo(
@@ -672,7 +800,7 @@ export default function PortfolioDashboard() {
     { id: "properties", label: "Properties", icon: Building2 },
     { id: "ledgers", label: "Ledgers", icon: ScrollText },
     { id: "maintenance", label: "Maintenance", icon: Wrench },
-    { id: "compliance", label: "Compliance", icon: AlertTriangle },
+    { id: "compliance", label: "Tasks", icon: AlertTriangle },
     { id: "providers", label: "Providers", icon: Phone },
     { id: "expenses", label: "Expenses", icon: Receipt },
     { id: "reports", label: "Reports", icon: BarChart3 },
@@ -711,7 +839,7 @@ export default function PortfolioDashboard() {
         </nav>
 
         <main className="main-panel">
-          {tab === "overview" && <Overview stats={stats} properties={properties} balances={balances} goToLedger={(id) => { setSelectedId(id); setTab("ledgers"); }} />}
+          {tab === "overview" && <Overview stats={stats} properties={properties} balances={balances} compliance={compliance} equipment={equipment} maintenance={maintenance} goToLedger={(id) => { setSelectedId(id); setTab("ledgers"); }} />}
           {tab === "snapshot" && (
             <Snapshot
               stats={stats}
@@ -720,9 +848,12 @@ export default function PortfolioDashboard() {
               marketValues={marketValues}
               mortgages={mortgages}
               expenses={expenses}
+              escrow={escrow}
               equipment={equipment}
               compliance={compliance}
               maintenance={maintenance}
+              taxRate={taxRate}
+              setTaxRate={setTaxRate}
               goToLedger={(id) => { setSelectedId(id); setTab("ledgers"); }}
             />
           )}
@@ -746,6 +877,7 @@ export default function PortfolioDashboard() {
               escrowForm={escrowForm}
               setEscrowForm={setEscrowForm}
               addEscrowEntry={addEscrowEntry}
+              setCurrentRate={setCurrentRate}
               removeEscrowEntry={removeEscrowEntry}
               mortgages={mortgages}
               updateMortgage={updateMortgage}
@@ -758,6 +890,12 @@ export default function PortfolioDashboard() {
               setEquipmentForm={setEquipmentForm}
               addEquipment={addEquipment}
               removeEquipment={removeEquipment}
+              compliance={compliance}
+              markComplianceDone={markComplianceDone}
+              removeCompliance={removeCompliance}
+              annualExpenses={annualExpenses}
+              addAnnualExpense={addAnnualExpense}
+              removeAnnualExpense={removeAnnualExpense}
             />
           )}
           {tab === "maintenance" && (
@@ -817,6 +955,25 @@ function MiniStat({ label, value, tone = "ink", small = false }) {
   );
 }
 
+function Collapsible({ title, subtitle, defaultOpen = true, children }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <div style={{ marginBottom: 24, border: `1px solid ${T.line}`, borderRadius: 8, overflow: "hidden" }}>
+      <button
+        onClick={() => setOpen((o) => !o)}
+        style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", background: T.paper, border: "none", cursor: "pointer", textAlign: "left" }}
+      >
+        <div>
+          <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 16, fontWeight: 600 }}>{title}</div>
+          {subtitle && <div style={{ fontSize: 12, color: T.inkSoft, marginTop: 2 }}>{subtitle}</div>}
+        </div>
+        <ChevronDown size={18} style={{ transform: open ? "rotate(180deg)" : "none", transition: "transform 0.15s ease", color: T.inkSoft, flexShrink: 0 }} />
+      </button>
+      {open && <div style={{ padding: 16, borderTop: `1px solid ${T.line}`, background: T.card }}>{children}</div>}
+    </div>
+  );
+}
+
 function SectionTitle({ title, subtitle }) {
   return (
     <div style={{ marginBottom: 14 }}>
@@ -826,10 +983,26 @@ function SectionTitle({ title, subtitle }) {
   );
 }
 
-function Overview({ stats, properties, balances, goToLedger }) {
+function Overview({ stats, properties, balances, compliance, equipment, maintenance, goToLedger }) {
+  const overdueCompliance = compliance.filter((c) => c.status !== "completed" && daysUntil(c.dueDate) < 0);
+  const dueSoonCompliance = compliance.filter((c) => c.status !== "completed" && daysUntil(c.dueDate) >= 0 && daysUntil(c.dueDate) <= 30);
+  const equipmentNeedingReplacement = properties.flatMap((p) =>
+    (equipment[p.id] || [])
+      .map((eq) => ({ ...eq, propertyName: p.name, age: equipmentAgeYears(eq.installDate) }))
+      .filter((eq) => eq.age >= eq.lifespan - 2)
+  );
+  const openMaintenance = maintenance.filter((m) => m.status === "scheduled" || m.status === "in_progress");
+  const leasesNeedingAttention = properties
+    .map((p) => ({ property: p, urgency: leaseUrgency(p.leaseEnd) }))
+    .filter((x) => x.urgency && x.urgency.tier !== "ok");
+  const insuranceNeedingAttention = properties
+    .map((p) => ({ property: p, urgency: insuranceUrgency(p.insuranceExpiration) }))
+    .filter((x) => x.urgency && x.urgency.tier !== "ok");
+  const propertyName = (id) => properties.find((p) => p.id === id)?.name || "—";
+
   return (
     <div>
-      <SectionTitle title="This month, at a glance" subtitle="Net cash flow includes mortgage debt service" />
+      <SectionTitle title="This month, at a glance" subtitle="Net cash flow reflects rent actually collected — see the P&L below for scheduled rent minus full recurring costs" />
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 28 }}>
         <KpiCard label="Rent roll" value={money(stats.rentRoll)} />
         <KpiCard label="Collected in August" value={money(stats.collectedAugust)} tone="pine" />
@@ -840,13 +1013,41 @@ function Overview({ stats, properties, balances, goToLedger }) {
         <KpiCard label="Reserves held" value={money(stats.reservesHeld)} />
       </div>
 
-      <SectionTitle title="Portfolio value" subtitle="What the properties are worth, minus what's owed on them" />
-      <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 28 }}>
-        <KpiCard label="Total market value" value={money(stats.marketValueTotal)} />
-        <KpiCard label="Total mortgage debt" value={money(stats.mortgageDebt)} tone="brick" />
-        <KpiCard label="Net portfolio value" value={money(stats.netPortfolioValue)} tone="pine" />
-        <KpiCard label="Compliance due ≤30d" value={String(stats.complianceDueSoon)} tone={stats.complianceDueSoon > 0 ? "brick" : "ink"} />
-        <KpiCard label="Leases expiring ≤90d" value={String(stats.leasesExpiringSoon)} tone={stats.leasesExpiringSoon > 0 ? "brick" : "ink"} />
+      <SectionTitle title="Notifications" subtitle="Leases and insurance expiring soon, task deadlines, equipment nearing end of life, open maintenance" />
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 28 }}>
+        {leasesNeedingAttention.map(({ property, urgency }) => (
+          <AttentionRow key={`l-${property.id}`} icon={ScrollText} tone={urgency.tier === "expired" || urgency.tier === "30" ? "brick" : "amber"} label={`Lease — ${property.name}`} detail={urgency.label} />
+        ))}
+        {insuranceNeedingAttention.map(({ property, urgency }) => (
+          <AttentionRow key={`i-${property.id}`} icon={AlertTriangle} tone={urgency.tier === "expired" || urgency.tier === "30" ? "brick" : "amber"} label={`Insurance — ${property.name}`} detail={urgency.label} />
+        ))}
+        {overdueCompliance.map((c) => (
+          <AttentionRow
+            key={`c-${c.id}`}
+            icon={AlertTriangle}
+            tone="brick"
+            label={`${c.itemType} overdue — ${propertyName(c.propertyId ?? null)}`}
+            detail={[`Was due ${c.dueDate}`, c.amount ? money(c.amount) : null, c.description || null].filter(Boolean).join(" · ")}
+          />
+        ))}
+        {dueSoonCompliance.map((c) => (
+          <AttentionRow
+            key={`cs-${c.id}`}
+            icon={AlertTriangle}
+            tone="amber"
+            label={`${c.itemType} due soon — ${propertyName(c.propertyId ?? null)}`}
+            detail={[`Due ${c.dueDate}`, c.amount ? money(c.amount) : null, c.description || null].filter(Boolean).join(" · ")}
+          />
+        ))}
+        {equipmentNeedingReplacement.map((eq) => (
+          <AttentionRow key={`e-${eq.id}-${eq.propertyName}`} icon={Wrench} tone={eq.age >= eq.lifespan ? "brick" : "amber"} label={`${eq.type} — ${eq.propertyName}`} detail={`${eq.age.toFixed(1)} of ${eq.lifespan} expected years`} />
+        ))}
+        {openMaintenance.map((m) => (
+          <AttentionRow key={`m-${m.id}`} icon={Wrench} tone="pine" label={`${m.description} — ${propertyName(m.propertyId)}`} detail={`${m.status === "in_progress" ? "In progress" : "Scheduled"} for ${m.scheduledDate}`} />
+        ))}
+        {leasesNeedingAttention.length + insuranceNeedingAttention.length + overdueCompliance.length + dueSoonCompliance.length + equipmentNeedingReplacement.length + openMaintenance.length === 0 && (
+          <div style={{ color: T.inkSoft, fontStyle: "italic" }}>Nothing needs attention right now.</div>
+        )}
       </div>
 
       <SectionTitle title="Balances by property" subtitle="Click a property to open its ledger" />
@@ -873,57 +1074,93 @@ function Overview({ stats, properties, balances, goToLedger }) {
   );
 }
 
-function Snapshot({ stats, properties, balances, marketValues, mortgages, expenses, equipment, compliance, maintenance, goToLedger }) {
-  const overdueCompliance = compliance.filter((c) => c.status !== "completed" && daysUntil(c.dueDate) < 0);
-  const dueSoonCompliance = compliance.filter((c) => c.status !== "completed" && daysUntil(c.dueDate) >= 0 && daysUntil(c.dueDate) <= 30);
-  const equipmentNeedingReplacement = properties.flatMap((p) =>
-    (equipment[p.id] || [])
-      .map((eq) => ({ ...eq, propertyName: p.name, age: equipmentAgeYears(eq.installDate) }))
-      .filter((eq) => eq.age >= eq.lifespan - 2)
-  );
-  const openMaintenance = maintenance.filter((m) => m.status === "scheduled" || m.status === "in_progress");
-  const leasesNeedingAttention = properties
-    .map((p) => ({ property: p, urgency: leaseUrgency(p.leaseEnd) }))
-    .filter((x) => x.urgency && x.urgency.tier !== "ok");
-  const propertyName = (id) => properties.find((p) => p.id === id)?.name || "—";
-
+function Snapshot({ stats, properties, balances, marketValues, mortgages, expenses, escrow, equipment, compliance, maintenance, taxRate, setTaxRate, goToLedger }) {
   const performanceRows = properties.map((p) => ({
     property: p,
-    perf: propertyPerformance(p, { marketValues, mortgages, expenses }),
-    rentStatus: statusFor(balances[p.id], p.rent),
+    perf: propertyPerformance(p, { marketValues, mortgages, expenses, escrow }),
   }));
+
+  const propertiesWithBasis = properties.filter((p) => Number(p.purchasePrice) > 0);
+  const depreciableBasis = propertiesWithBasis.reduce((s, p) => s + Number(p.purchasePrice), 0);
+  const annualDepreciation = depreciableBasis / 27.5; // standard US residential rental, straight-line, ignores land value split
+  const monthlyDepreciation = annualDepreciation / 12;
+  const estTaxableIncome = stats.netMonthlyIncome - monthlyDepreciation;
+  const rate = Number(taxRate) || 0;
+  const estMonthlyTax = estTaxableIncome > 0 ? estTaxableIncome * (rate / 100) : 0;
 
   return (
     <div>
-      <SectionTitle title="The business, at a glance" subtitle="Pulled together from ledgers, expenses, mortgages, valuations, maintenance, and compliance" />
+      <SectionTitle title="The business, at a glance" subtitle="Pulled together from ledgers, expenses, mortgages, and valuations" />
       <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 28 }}>
         <KpiCard label="Net portfolio value" value={money(stats.netPortfolioValue)} tone="pine" />
-        <KpiCard label="Total equity" value={money(stats.marketValueTotal - stats.mortgageDebt)} />
-        <KpiCard label="Net cash flow (mo.)" value={money(stats.net)} tone={stats.net >= 0 ? "pine" : "brick"} />
-        <KpiCard label="Rent roll" value={money(stats.rentRoll)} />
+        <KpiCard label="Monthly rent roll" value={money(stats.rentRoll)} />
         <KpiCard label="Reserves held" value={money(stats.reservesHeld)} />
       </div>
 
-      <SectionTitle title="Needs attention" subtitle="Leases expiring soon, compliance overdue or due soon, equipment nearing end of life, open maintenance" />
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 28 }}>
-        {leasesNeedingAttention.map(({ property, urgency }) => (
-          <AttentionRow key={`l-${property.id}`} icon={ScrollText} tone={urgency.tier === "expired" || urgency.tier === "30" ? "brick" : "amber"} label={`Lease — ${property.name}`} detail={urgency.label} />
+      <SectionTitle title="Portfolio monthly income & expenses" subtitle="Rent roll minus current Tax/Insurance/HOA/Other rates and mortgage payments — the same math as each property's own P&L, summed" />
+      <div style={{ background: T.card, border: `1px solid ${T.line}`, borderRadius: 8, padding: "16px 18px", marginBottom: 28, maxWidth: 480 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 14 }}>
+          <span>Rent roll</span>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: T.pine, fontWeight: 600 }}>+{money(stats.rentRoll)}</span>
+        </div>
+        {[
+          ["Property tax (escrow)", stats.totalPropertyTax],
+          ["Insurance", stats.totalInsurance],
+          ["HOA", stats.totalHOA],
+          ["Mortgage (P&I)", stats.debtService],
+          ["Other", stats.totalOtherRecurring],
+        ].map(([label, amount]) => (
+          <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 14, borderTop: `1px solid ${T.line}` }}>
+            <span style={{ color: T.inkSoft }}>{label}</span>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: amount > 0 ? T.brick : T.inkSoft }}>{amount > 0 ? `−${money(amount)}` : "—"}</span>
+          </div>
         ))}
-        {overdueCompliance.map((c) => (
-          <AttentionRow key={`c-${c.id}`} icon={AlertTriangle} tone="brick" label={`${c.itemType} overdue — ${propertyName(c.propertyId ?? null)}`} detail={`Was due ${c.dueDate}`} />
-        ))}
-        {dueSoonCompliance.map((c) => (
-          <AttentionRow key={`cs-${c.id}`} icon={AlertTriangle} tone="amber" label={`${c.itemType} due soon — ${propertyName(c.propertyId ?? null)}`} detail={`Due ${c.dueDate}`} />
-        ))}
-        {equipmentNeedingReplacement.map((eq) => (
-          <AttentionRow key={`e-${eq.id}-${eq.propertyName}`} icon={Wrench} tone={eq.age >= eq.lifespan ? "brick" : "amber"} label={`${eq.type} — ${eq.propertyName}`} detail={`${eq.age.toFixed(1)} of ${eq.lifespan} expected years`} />
-        ))}
-        {openMaintenance.map((m) => (
-          <AttentionRow key={`m-${m.id}`} icon={Wrench} tone="pine" label={`${m.description} — ${propertyName(m.propertyId)}`} detail={`${m.status === "in_progress" ? "In progress" : "Scheduled"} for ${m.scheduledDate}`} />
-        ))}
-        {leasesNeedingAttention.length + overdueCompliance.length + dueSoonCompliance.length + equipmentNeedingReplacement.length + openMaintenance.length === 0 && (
-          <div style={{ color: T.inkSoft, fontStyle: "italic" }}>Nothing needs attention right now.</div>
-        )}
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0 4px", fontSize: 13, fontWeight: 600, borderTop: `2px solid ${T.ink}`, marginTop: 4 }}>
+          <span>Total expenses</span>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>−{money(stats.totalMonthlyExpenses)}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0 2px", fontSize: 18, fontWeight: 700, borderTop: `3px double ${T.ink}`, marginTop: 6 }}>
+          <span>Net monthly income</span>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: stats.netMonthlyIncome >= 0 ? T.pine : T.brick }}>{money(stats.netMonthlyIncome)}</span>
+        </div>
+      </div>
+
+      <SectionTitle title="Estimated tax reserve" subtitle="A rough planning number, not a tax return — see the caveats below" />
+      <div style={{ background: T.amberSoft, border: `1px solid ${T.amber}`, borderRadius: 8, padding: "16px 18px", marginBottom: 28, maxWidth: 480 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 14 }}>
+          <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: "#6B5220" }}>
+            Marginal tax rate (%)
+            <input
+              type="number"
+              value={taxRate}
+              onChange={(e) => setTaxRate(e.target.value)}
+              placeholder="e.g. 22"
+              style={{ width: 90, border: `1px solid ${T.amber}`, borderRadius: 6, padding: "6px 8px", fontSize: 14, background: "#fff", color: T.ink }}
+            />
+          </label>
+          <span style={{ fontSize: 12, color: "#6B5220", marginTop: 18 }}>You enter this — the app can't know your bracket</span>
+        </div>
+
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 13.5 }}>
+          <span style={{ color: "#6B5220" }}>Net monthly income (cash)</span>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{money(stats.netMonthlyIncome)}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0", fontSize: 13.5, borderTop: "1px solid rgba(176,141,87,0.35)" }}>
+          <span style={{ color: "#6B5220" }}>Est. monthly depreciation</span>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>−{money(monthlyDepreciation)}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", fontSize: 14, fontWeight: 600, borderTop: "1px solid rgba(176,141,87,0.35)" }}>
+          <span>Est. taxable income</span>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: estTaxableIncome >= 0 ? T.ink : T.brick }}>{money(estTaxableIncome)}</span>
+        </div>
+        <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0 2px", fontSize: 17, fontWeight: 700, borderTop: "2px solid #8A6A2F", marginTop: 4 }}>
+          <span>Est. monthly tax reserve</span>
+          <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{money(estMonthlyTax)}</span>
+        </div>
+
+        <div style={{ fontSize: 11, color: "#6B5220", marginTop: 12, lineHeight: 1.5 }}>
+          Depreciation is estimated as total purchase price ÷ 27.5 years ({propertiesWithBasis.length} of {properties.length} properties have a purchase price on file — add it under each property's Annual expenses section to include it here). This estimate does <strong>not</strong> account for: the split between mortgage interest (deductible) and principal (not deductible — we don't track that split), land value (not depreciable), passive activity loss limitations, depreciation recapture on sale, or state taxes. Treat this as a rough amount to set aside, not a filing figure — talk to a CPA for actual numbers.
+        </div>
       </div>
 
       <SectionTitle title="Performance by property" subtitle="Click a property to see its full ledger" />
@@ -931,7 +1168,7 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13.5 }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
-            {["Property", "Rent status", "Market value", "Equity", "Cash flow/mo", "Gross yield", "Cap rate"].map((h) => (
+            {["Property", "Market value", "Equity", "Cash flow/mo", "Gross yield", "Cap rate"].map((h) => (
               <th key={h} style={{ textAlign: ["Market value", "Equity", "Cash flow/mo", "Gross yield", "Cap rate"].includes(h) ? "right" : "left", padding: "8px 6px", fontSize: 11.5, textTransform: "uppercase", letterSpacing: "0.05em", color: T.inkSoft }}>
                 {h}
               </th>
@@ -939,12 +1176,9 @@ function Snapshot({ stats, properties, balances, marketValues, mortgages, expens
           </tr>
         </thead>
         <tbody>
-          {performanceRows.map(({ property, perf, rentStatus }) => (
+          {performanceRows.map(({ property, perf }) => (
             <tr key={property.id} style={{ borderBottom: `1px solid ${T.line}`, cursor: "pointer" }} onClick={() => goToLedger(property.id)}>
               <td style={{ padding: "9px 6px", fontWeight: 500, color: T.pine }}>{property.name}</td>
-              <td style={{ padding: "9px 6px" }}>
-                <span style={{ background: rentStatus.bg, color: rentStatus.fg, fontSize: 11.5, fontWeight: 600, padding: "3px 8px", borderRadius: 20 }}>{rentStatus.label}</span>
-              </td>
               <td style={{ padding: "9px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>{money(perf.marketValue)}</td>
               <td style={{ padding: "9px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>{money(perf.equity)}</td>
               <td style={{ padding: "9px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", color: perf.estMonthlyCashFlow >= 0 ? T.pine : T.brick }}>{money(perf.estMonthlyCashFlow)}</td>
@@ -1003,13 +1237,13 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
         </button>
       </div>
 
-      <SectionTitle title="Properties" subtitle="Click into any field to edit — changes save automatically" />
+      <SectionTitle title="Properties" subtitle="Click into any field to edit — changes save automatically. Rent is edited on each property's Ledgers page; rent estimate here is editable for market comparison." />
       <div className="table-scroll">
 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
-            {["Property", "City", "Tenant", "Monthly rent", "Balance", "Mortgage", "Loan balance", "Monthly P&I", ""].map((h) => (
-              <th key={h} style={{ textAlign: ["Monthly rent", "Balance", "Loan balance", "Monthly P&I"].includes(h) ? "right" : h === "Mortgage" ? "center" : "left", padding: "8px 6px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: T.inkSoft }}>
+            {["Property", "City", "Tenant", "Rent estimate", "Monthly rent", "Balance", "Mortgage", "Loan balance", "Monthly P&I", ""].map((h) => (
+              <th key={h} style={{ textAlign: ["Rent estimate", "Monthly rent", "Balance", "Loan balance", "Monthly P&I"].includes(h) ? "right" : h === "Mortgage" ? "center" : "left", padding: "8px 6px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: T.inkSoft }}>
                 {h}
               </th>
             ))}
@@ -1032,7 +1266,23 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
                   <input style={cellInputStyle} type="text" value={p.tenant} onChange={(e) => updateProperty(p.id, "tenant", e.target.value)} onFocus={(e) => (e.target.style.border = `1px solid ${T.line}`)} onBlur={(e) => (e.target.style.border = "1px solid transparent")} />
                 </td>
                 <td style={{ padding: "4px 4px" }}>
-                  <input style={{ ...cellInputStyle, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }} type="number" value={p.rent} onChange={(e) => updateProperty(p.id, "rent", e.target.value)} onFocus={(e) => (e.target.style.border = `1px solid ${T.line}`)} onBlur={(e) => (e.target.style.border = "1px solid transparent")} />
+                  <input
+                    style={{ ...cellInputStyle, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", color: T.inkSoft }}
+                    type="number"
+                    placeholder="—"
+                    value={p.rentEstimate}
+                    onChange={(e) => updateProperty(p.id, "rentEstimate", e.target.value)}
+                    onFocus={(e) => (e.target.style.border = `1px solid ${T.line}`)}
+                    onBlur={(e) => (e.target.style.border = "1px solid transparent")}
+                  />
+                </td>
+                <td style={{ padding: "10px 6px", textAlign: "right" }}>
+                  <div style={{ fontFamily: "'IBM Plex Mono', monospace" }}>{money(p.rent)}</div>
+                  {p.rentEstimate && Number(p.rentEstimate) !== p.rent && (
+                    <div style={{ fontSize: 11, color: p.rent < Number(p.rentEstimate) ? T.brick : T.pine, marginTop: 2 }}>
+                      {p.rent < Number(p.rentEstimate) ? "↓" : "↑"} {money(Math.abs(p.rent - Number(p.rentEstimate)))} vs. est.
+                    </div>
+                  )}
                 </td>
                 <td style={{ padding: "10px 6px", textAlign: "right" }}>
                   <span style={{ background: s.bg, color: s.fg, fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>{s.label}</span>
@@ -1097,7 +1347,7 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan={3} style={{ padding: "12px 6px", fontWeight: 600 }}>Total rent roll</td>
+            <td colSpan={4} style={{ padding: "12px 6px", fontWeight: 600 }}>Total rent roll</td>
             <td style={{ padding: "12px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, borderTop: `3px double ${T.ink}` }}>
               {money(properties.reduce((s, p) => s + p.rent, 0))}
             </td>
@@ -1118,9 +1368,45 @@ function Properties({ properties, balances, goToLedger, mortgages, updateMortgag
   );
 }
 
-function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form, setForm, addEntry, utilities, utilityForm, setUtilityForm, addUtility, removeUtility, escrow, escrowForm, setEscrowForm, addEscrowEntry, removeEscrowEntry, mortgages, updateMortgage, marketValues, updateMarketValue, expenses, equipment, equipmentForm, setEquipmentForm, addEquipment, removeEquipment, updateProperty }) {
+function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form, setForm, addEntry, utilities, utilityForm, setUtilityForm, addUtility, removeUtility, escrow, escrowForm, setEscrowForm, addEscrowEntry, removeEscrowEntry, setCurrentRate, mortgages, updateMortgage, marketValues, updateMarketValue, expenses, equipment, equipmentForm, setEquipmentForm, addEquipment, removeEquipment, updateProperty, compliance, markComplianceDone, removeCompliance, annualExpenses, addAnnualExpense, removeAnnualExpense }) {
   const property = properties.find((p) => p.id === selectedId);
-  const perf = useMemo(() => propertyPerformance(property, { marketValues, mortgages, expenses }), [property, marketValues, mortgages, expenses]);
+  const perf = useMemo(() => propertyPerformance(property, { marketValues, mortgages, expenses, escrow }), [property, marketValues, mortgages, expenses, escrow]);
+  const [newAnnualExpenseDraft, setNewAnnualExpenseDraft] = useState({ description: "", amount: "" });
+  const [tenantMessageDraft, setTenantMessageDraft] = useState("");
+  const [tenantSmsStatus, setTenantSmsStatus] = useState("idle"); // idle | sending | sent | error
+  useEffect(() => {
+    setTenantMessageDraft("");
+    setTenantSmsStatus("idle");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
+  const [rateDrafts, setRateDrafts] = useState({ insurance: "", hoa: "", otherAmount: "", otherNote: "" });
+  useEffect(() => {
+    setRateDrafts({
+      insurance: perf.insurance ? String(perf.insurance) : "",
+      hoa: perf.hoa ? String(perf.hoa) : "",
+      otherAmount: perf.other ? String(perf.other) : "",
+      otherNote: perf.otherNote || "",
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId]);
+  const commitRate = (category, draftKey) => {
+    const value = Number(rateDrafts[draftKey]) || 0;
+    const current = category === "Insurance" ? perf.insurance : perf.hoa;
+    if (value !== current) setCurrentRate(selectedId, category, value);
+  };
+  const commitOther = () => {
+    const value = Number(rateDrafts.otherAmount) || 0;
+    if (value !== perf.other || rateDrafts.otherNote !== (perf.otherNote || "")) {
+      setCurrentRate(selectedId, "Other", value, rateDrafts.otherNote);
+    }
+  };
+  const propertyNotifications = useMemo(
+    () =>
+      compliance
+        .filter((c) => c.propertyId === selectedId)
+        .sort((a, b) => (a.status === "completed") - (b.status === "completed") || a.dueDate.localeCompare(b.dueDate)),
+    [compliance, selectedId]
+  );
   const entries = useMemo(() => {
     const rows = ledger
       .filter((e) => e.propertyId === selectedId)
@@ -1176,7 +1462,273 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
       <div>
         <SectionTitle title={`${property.name} — ledger`} subtitle={`${property.tenant} · rent ${money(property.rent)}/mo`} />
 
-        <div style={{ background: T.paper, border: `1px solid ${T.line}`, borderRadius: 8, padding: "12px 16px", marginBottom: 20 }}>
+        <div style={{ marginBottom: 32 }}>
+          <SectionTitle title="Notifications" subtitle="Outstanding items for this property — add or manage new tasks from the Tasks tab" />
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {propertyNotifications
+              .filter((c) => c.status !== "completed")
+              .map((c) => {
+                const u = complianceUrgency(c);
+                return (
+                  <div key={c.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8, background: u.bg, border: `1px solid ${T.line}`, borderRadius: 8, padding: "9px 14px" }}>
+                    <div>
+                      <span style={{ fontWeight: 500, color: T.ink }}>{c.itemType}</span>
+                      {c.description && <span style={{ color: T.inkSoft, fontSize: 13 }}> — {c.description}</span>}
+                      <div style={{ fontSize: 12, color: T.inkSoft, marginTop: 2 }}>
+                        Due {c.dueDate}
+                        {c.amount ? ` · ${money(c.amount)}` : ""}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <span style={{ color: u.fg, fontSize: 12, fontWeight: 700 }}>{u.label}</span>
+                      {c.recurrence !== "none" && (
+                        <button onClick={() => markComplianceDone(c.id, true)} style={{ background: "rgba(255,255,255,0.6)", border: `1px solid ${T.line}`, borderRadius: 6, padding: "4px 8px", fontSize: 11.5, cursor: "pointer", color: T.pine }}>
+                          Done &amp; renew
+                        </button>
+                      )}
+                      <button onClick={() => markComplianceDone(c.id, false)} style={{ background: "rgba(255,255,255,0.6)", border: `1px solid ${T.line}`, borderRadius: 6, padding: "4px 8px", fontSize: 11.5, cursor: "pointer", color: T.inkSoft }}>
+                        Mark done
+                      </button>
+                      <button onClick={() => removeCompliance(c.id)} style={{ background: "none", border: "none", cursor: "pointer", color: T.inkSoft }}>
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            {propertyNotifications.filter((c) => c.status !== "completed").length === 0 && (
+              <div style={{ color: T.inkSoft, fontStyle: "italic" }}>No outstanding notifications for this property.</div>
+            )}
+          </div>
+        </div>
+
+        <Collapsible title="Property info" subtitle="Description, ownership, purchase history, insurance, and utility accounts" defaultOpen={false}>
+          <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginBottom: 18 }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Owning entity
+              <input style={inputStyle} type="text" placeholder="e.g. Cinnity Realty LLC" value={property.owningEntity || ""} onChange={(e) => updateProperty(selectedId, "owningEntity", e.target.value)} />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Property type
+              <select style={inputStyle} value={property.propertyType || ""} onChange={(e) => updateProperty(selectedId, "propertyType", e.target.value)}>
+                <option value="">Select…</option>
+                {["Single Family", "Condo", "Townhouse", "Multi-Family", "Other"].map((t) => (
+                  <option key={t} value={t}>{t}</option>
+                ))}
+              </select>
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Bedrooms
+              <input style={{ ...inputStyle, width: 80 }} type="number" value={property.bedrooms || ""} onChange={(e) => updateProperty(selectedId, "bedrooms", e.target.value)} />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Bathrooms
+              <input style={{ ...inputStyle, width: 80 }} type="number" step="0.5" value={property.bathrooms || ""} onChange={(e) => updateProperty(selectedId, "bathrooms", e.target.value)} />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Sq. footage
+              <input style={{ ...inputStyle, width: 100 }} type="number" value={property.sqft || ""} onChange={(e) => updateProperty(selectedId, "sqft", e.target.value)} />
+            </label>
+          </div>
+
+          <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginBottom: 18, paddingTop: 14, borderTop: `1px solid ${T.line}` }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Date acquired
+              <input style={inputStyle} type="date" value={property.dateAcquired || ""} onChange={(e) => updateProperty(selectedId, "dateAcquired", e.target.value)} />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Purchase price
+              <input style={{ ...inputStyle, width: 130 }} type="number" placeholder="0" value={property.purchasePrice || ""} onChange={(e) => updateProperty(selectedId, "purchasePrice", e.target.value)} />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Renovation spend
+              <input style={{ ...inputStyle, width: 130 }} type="number" placeholder="0" value={property.renovationSpend || ""} onChange={(e) => updateProperty(selectedId, "renovationSpend", e.target.value)} />
+            </label>
+          </div>
+
+          <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginBottom: 18, paddingTop: 14, borderTop: `1px solid ${T.line}` }}>
+            <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 14, fontWeight: 600, width: "100%", marginBottom: -4 }}>Current tenant contact</div>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Name
+              <input style={inputStyle} type="text" value={property.tenant || ""} onChange={(e) => updateProperty(selectedId, "tenant", e.target.value)} />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Phone
+              <input style={inputStyle} type="text" value={property.tenantPhone || ""} onChange={(e) => updateProperty(selectedId, "tenantPhone", e.target.value)} />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Email
+              <input style={inputStyle} type="email" value={property.tenantEmail || ""} onChange={(e) => updateProperty(selectedId, "tenantEmail", e.target.value)} />
+            </label>
+
+            <div style={{ width: "100%", marginTop: 4 }}>
+              <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+                Text this tenant
+                <textarea
+                  value={tenantMessageDraft}
+                  onChange={(e) => setTenantMessageDraft(e.target.value)}
+                  placeholder={property.tenantPhone ? "Type a message…" : "Add a phone number above first"}
+                  rows={2}
+                  style={{ ...inputStyle, width: "100%", resize: "vertical", fontFamily: "inherit" }}
+                />
+              </label>
+              <div style={{ display: "flex", alignItems: "center", gap: 10, marginTop: 6 }}>
+                <button
+                  disabled={!property.tenantPhone || !tenantMessageDraft.trim() || tenantSmsStatus === "sending"}
+                  onClick={async () => {
+                    setTenantSmsStatus("sending");
+                    try {
+                      const res = await fetch("/api/send-tenant-sms", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ to: property.tenantPhone, body: tenantMessageDraft }),
+                      });
+                      const json = await res.json();
+                      if (json.ok) {
+                        setTenantSmsStatus("sent");
+                        setTenantMessageDraft("");
+                      } else {
+                        setTenantSmsStatus("error");
+                      }
+                    } catch {
+                      setTenantSmsStatus("error");
+                    }
+                  }}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 6, border: "none", borderRadius: 6, padding: "8px 16px", fontSize: 13, fontWeight: 600, height: 34,
+                    background: !property.tenantPhone || !tenantMessageDraft.trim() ? T.line : T.pine,
+                    color: !property.tenantPhone || !tenantMessageDraft.trim() ? T.inkSoft : "#fff",
+                    cursor: !property.tenantPhone || !tenantMessageDraft.trim() ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {tenantSmsStatus === "sending" ? "Sending…" : "Send text"}
+                </button>
+                {tenantSmsStatus === "sent" && <span style={{ fontSize: 12, color: T.pine }}>✓ Sent</span>}
+                {tenantSmsStatus === "error" && <span style={{ fontSize: 12, color: T.brick }}>Failed to send — check Twilio setup</span>}
+              </div>
+            </div>
+          </div>
+
+          {property.propertyType === "Condo" && (
+            <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginBottom: 18, paddingTop: 14, borderTop: `1px solid ${T.line}` }}>
+              <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 14, fontWeight: 600, width: "100%", marginBottom: -4 }}>HOA management</div>
+              <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft, flex: 1, minWidth: 160 }}>
+                Company name
+                <input style={inputStyle} type="text" value={property.hoaManagementName || ""} onChange={(e) => updateProperty(selectedId, "hoaManagementName", e.target.value)} />
+              </label>
+              <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+                Phone
+                <input style={inputStyle} type="text" value={property.hoaManagementPhone || ""} onChange={(e) => updateProperty(selectedId, "hoaManagementPhone", e.target.value)} />
+              </label>
+              <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft, flex: 1, minWidth: 160 }}>
+                Website
+                <input style={inputStyle} type="text" placeholder="https://" value={property.hoaManagementWebsite || ""} onChange={(e) => updateProperty(selectedId, "hoaManagementWebsite", e.target.value)} />
+              </label>
+            </div>
+          )}
+
+          <div style={{ paddingTop: 14, borderTop: `1px solid ${T.line}`, marginBottom: 8 }}>
+            <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 14, fontWeight: 600, marginBottom: 10 }}>Insurance</div>
+            <div style={{ display: "flex", gap: 18, flexWrap: "wrap", alignItems: "flex-end" }}>
+              <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+                Company
+                <input style={inputStyle} type="text" value={property.insuranceCompany || ""} onChange={(e) => updateProperty(selectedId, "insuranceCompany", e.target.value)} />
+              </label>
+              <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+                Policy #
+                <input style={inputStyle} type="text" value={property.insurancePolicy || ""} onChange={(e) => updateProperty(selectedId, "insurancePolicy", e.target.value)} />
+              </label>
+              <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+                Expiration date
+                <input style={inputStyle} type="date" value={property.insuranceExpiration || ""} onChange={(e) => updateProperty(selectedId, "insuranceExpiration", e.target.value)} />
+              </label>
+              {(() => {
+                const iu = insuranceUrgency(property.insuranceExpiration);
+                return iu ? (
+                  <span style={{ background: iu.bg, color: iu.fg, fontSize: 12, fontWeight: 600, padding: "5px 12px", borderRadius: 20, marginBottom: 2 }}>{iu.label}</span>
+                ) : (
+                  <span style={{ fontSize: 12, color: T.inkSoft, marginBottom: 8 }}>No expiration date on file</span>
+                );
+              })()}
+            </div>
+            <div style={{ fontSize: 11, color: T.inkSoft, marginTop: 8, fontStyle: "italic" }}>
+              Flags at 90, 60, and 30 days before expiration — shows up in Notifications and the Overview count too.
+            </div>
+          </div>
+
+          <div style={{ paddingTop: 18, borderTop: `1px solid ${T.line}` }}>
+            <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 14, fontWeight: 600, marginBottom: 10 }}>Utility accounts</div>
+            <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16, alignItems: "flex-end" }}>
+              <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+                Utility
+                <select style={inputStyle} value={utilityForm.type} onChange={(e) => setUtilityForm((f) => ({ ...f, type: e.target.value }))}>
+                  {UTILITY_TYPES.map((t) => (
+                    <option key={t} value={t}>{t}</option>
+                  ))}
+                </select>
+              </label>
+              <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft, flex: 1, minWidth: 140 }}>
+                Provider
+                <input style={inputStyle} type="text" placeholder="e.g. Pepco" value={utilityForm.provider} onChange={(e) => setUtilityForm((f) => ({ ...f, provider: e.target.value }))} />
+              </label>
+              <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft, flex: 1, minWidth: 160 }}>
+                Account #
+                <input style={inputStyle} type="text" placeholder="Account number" value={utilityForm.account} onChange={(e) => setUtilityForm((f) => ({ ...f, account: e.target.value }))} />
+              </label>
+              <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+                Pays
+                <select style={inputStyle} value={utilityForm.payer} onChange={(e) => setUtilityForm((f) => ({ ...f, payer: e.target.value }))}>
+                  <option value="Tenant">Tenant</option>
+                  <option value="Landlord">Landlord</option>
+                </select>
+              </label>
+              <button onClick={addUtility} style={{ display: "flex", alignItems: "center", gap: 6, background: T.pine, color: "#fff", border: "none", borderRadius: 6, padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", height: 37 }}>
+                <Plus size={15} /> Add
+              </button>
+            </div>
+
+            <div className="table-scroll">
+<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
+              <thead>
+                <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
+                  {["Utility", "Provider", "Account #", "Pays", ""].map((h) => (
+                    <th key={h} style={{ textAlign: "left", padding: "8px 6px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: T.inkSoft }}>
+                      {h}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {(utilities[selectedId] || []).map((u) => (
+                  <tr key={u.id} style={{ borderBottom: `1px solid ${T.line}` }}>
+                    <td style={{ padding: "9px 6px", fontWeight: 500 }}>{u.type}</td>
+                    <td style={{ padding: "9px 6px" }}>{u.provider}</td>
+                    <td style={{ padding: "9px 6px", fontFamily: "'IBM Plex Mono', monospace", color: T.inkSoft }}>{u.account}</td>
+                    <td style={{ padding: "9px 6px" }}>
+                      <span style={{ background: u.payer === "Tenant" ? T.pineSoft : T.amberSoft, color: u.payer === "Tenant" ? T.pine : "#8A6A2F", fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>
+                        {u.payer}
+                      </span>
+                    </td>
+                    <td style={{ padding: "9px 6px", textAlign: "right" }}>
+                      <button onClick={() => removeUtility(selectedId, u.id)} style={{ background: "none", border: "none", cursor: "pointer", color: T.inkSoft }}>
+                        <Trash2 size={15} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+                {(!utilities[selectedId] || utilities[selectedId].length === 0) && (
+                  <tr>
+                    <td colSpan={5} style={{ padding: "16px 6px", color: T.inkSoft, fontStyle: "italic" }}>No utility accounts on file yet.</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+            </div>
+          </div>
+        </Collapsible>
+
+        <Collapsible title="Value & Equity" subtitle="Market value, loan balance, and investment metrics">
           <div style={{ display: "flex", gap: 18, alignItems: "flex-end", flexWrap: "wrap", marginBottom: 14 }}>
             <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
               Current market value
@@ -1193,14 +1745,152 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
           </div>
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap", paddingTop: 12, borderTop: `1px solid ${T.line}` }}>
             <MiniStat label="Debt service" value={money(perf.debtService)} small />
-            <MiniStat label="Est. monthly cash flow" value={money(perf.estMonthlyCashFlow)} tone={perf.estMonthlyCashFlow >= 0 ? "pine" : "brick"} small />
+            <MiniStat label="Net monthly income" value={money(perf.netMonthlyIncome)} tone={perf.netMonthlyIncome >= 0 ? "pine" : "brick"} small />
             <MiniStat label="Gross rent yield" value={`${perf.grossYield.toFixed(1)}%`} small />
             <MiniStat label="Cap rate (est.)" value={`${perf.capRate.toFixed(1)}%`} small />
           </div>
           <div style={{ fontSize: 11, color: T.inkSoft, marginTop: 10, fontStyle: "italic" }}>
             Cap rate is estimated from rent minus expenses logged on file — not a full-year actual.
           </div>
-        </div>
+        </Collapsible>
+
+        <Collapsible title="Annual expenses" subtitle="Property tax and license drive the monthly figures below; add anything else that only bills once a year">
+          <div style={{ display: "flex", gap: 18, flexWrap: "wrap", marginBottom: 18 }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Annual property tax
+              <input style={{ ...inputStyle, width: 130 }} type="number" placeholder="0" value={property.annualPropertyTax || ""} onChange={(e) => updateProperty(selectedId, "annualPropertyTax", e.target.value)} />
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+              Annual license
+              <input style={{ ...inputStyle, width: 130 }} type="number" placeholder="0" value={property.annualLicense || ""} onChange={(e) => updateProperty(selectedId, "annualLicense", e.target.value)} />
+            </label>
+          </div>
+
+          <div style={{ paddingTop: 14, borderTop: `1px solid ${T.line}` }}>
+            <div style={{ fontFamily: "'Source Serif 4', serif", fontSize: 14, fontWeight: 600, marginBottom: 10 }}>Other annual expenses</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 12 }}>
+              {(annualExpenses[selectedId] || []).map((ae) => (
+                <div key={ae.id} style={{ display: "flex", alignItems: "center", justifyContent: "space-between", border: `1px solid ${T.line}`, borderRadius: 6, padding: "7px 12px" }}>
+                  <span style={{ fontSize: 13.5 }}>{ae.description}</span>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <span style={{ fontFamily: "'IBM Plex Mono', monospace", fontSize: 13.5 }}>{money(ae.amount)}</span>
+                    <button onClick={() => removeAnnualExpense(selectedId, ae.id)} style={{ background: "none", border: "none", cursor: "pointer", color: T.inkSoft }}>
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {(!annualExpenses[selectedId] || annualExpenses[selectedId].length === 0) && (
+                <div style={{ color: T.inkSoft, fontStyle: "italic", fontSize: 13.5 }}>None on file yet.</div>
+              )}
+            </div>
+            {(() => {
+              const [draftDesc, draftAmt] = [newAnnualExpenseDraft.description, newAnnualExpenseDraft.amount];
+              return (
+                <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "flex-end" }}>
+                  <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft, flex: 1, minWidth: 160 }}>
+                    Title / description
+                    <input style={inputStyle} type="text" placeholder="e.g. Annual pest control contract" value={draftDesc} onChange={(e) => setNewAnnualExpenseDraft((f) => ({ ...f, description: e.target.value }))} />
+                  </label>
+                  <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+                    Amount
+                    <input style={{ ...inputStyle, width: 110 }} type="number" placeholder="0" value={draftAmt} onChange={(e) => setNewAnnualExpenseDraft((f) => ({ ...f, amount: e.target.value }))} />
+                  </label>
+                  <button
+                    onClick={() => {
+                      addAnnualExpense(selectedId, draftDesc, draftAmt);
+                      setNewAnnualExpenseDraft({ description: "", amount: "" });
+                    }}
+                    style={{ display: "flex", alignItems: "center", gap: 6, background: T.pine, color: "#fff", border: "none", borderRadius: 6, padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", height: 37 }}
+                  >
+                    <Plus size={15} /> Add
+                  </button>
+                </div>
+              );
+            })()}
+          </div>
+        </Collapsible>
+
+        <Collapsible title="Monthly income & expenses" subtitle="Click any figure to edit">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 14 }}>
+            <span>Rent</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ color: T.pine, fontWeight: 600 }}>+</span>
+              <input
+                type="number"
+                value={property.rent}
+                onChange={(e) => updateProperty(selectedId, "rent", e.target.value)}
+                style={{ width: 90, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", color: T.pine, fontWeight: 600, border: `1px solid ${T.line}`, borderRadius: 4, padding: "3px 6px", background: T.paper }}
+              />
+            </span>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 14, borderTop: `1px solid ${T.line}` }}>
+            <span style={{ color: T.inkSoft }}>Property tax (escrow)</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ color: T.brick }}>−</span>
+              <span style={{ width: 90, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", fontSize: 14, color: T.ink, display: "inline-block" }}>{money(perf.propertyTax)}</span>
+            </span>
+          </div>
+          <div style={{ fontSize: 11, color: T.inkSoft, marginTop: -2, marginBottom: 2 }}>= Annual property tax ÷ 12 — edit in Annual expenses above</div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 14, borderTop: `1px solid ${T.line}` }}>
+            <span style={{ color: T.inkSoft }}>Insurance</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ color: T.brick }}>−</span>
+              <input type="number" value={rateDrafts.insurance} placeholder="0" onChange={(e) => setRateDrafts((f) => ({ ...f, insurance: e.target.value }))} onBlur={() => commitRate("Insurance", "insurance")}
+                style={{ width: 90, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", border: `1px solid ${T.line}`, borderRadius: 4, padding: "3px 6px", background: T.paper, color: T.ink }} />
+            </span>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 14, borderTop: `1px solid ${T.line}` }}>
+            <span style={{ color: T.inkSoft }}>HOA</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ color: T.brick }}>−</span>
+              <input type="number" value={rateDrafts.hoa} placeholder="0" onChange={(e) => setRateDrafts((f) => ({ ...f, hoa: e.target.value }))} onBlur={() => commitRate("HOA", "hoa")}
+                style={{ width: 90, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", border: `1px solid ${T.line}`, borderRadius: 4, padding: "3px 6px", background: T.paper, color: T.ink }} />
+            </span>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 14, borderTop: `1px solid ${T.line}` }}>
+            <span style={{ color: T.inkSoft }}>Mortgage (P&amp;I)</span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ color: T.brick }}>−</span>
+              <input
+                type="number"
+                value={mortgages[selectedId]?.monthlyPayment ?? ""}
+                placeholder="0"
+                onChange={(e) => updateMortgage(selectedId, "monthlyPayment", e.target.value)}
+                style={{ width: 90, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", border: `1px solid ${T.line}`, borderRadius: 4, padding: "3px 6px", background: T.paper, color: T.ink }}
+              />
+            </span>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 0", fontSize: 14, borderTop: `1px solid ${T.line}`, flexWrap: "wrap", gap: 6 }}>
+            <span style={{ display: "flex", alignItems: "center", gap: 6, color: T.inkSoft }}>
+              Other
+              <input type="text" value={rateDrafts.otherNote} placeholder="description, e.g. Columbia Assoc. fees" onChange={(e) => setRateDrafts((f) => ({ ...f, otherNote: e.target.value }))} onBlur={commitOther}
+                style={{ width: 170, fontSize: 12.5, border: `1px solid ${T.line}`, borderRadius: 4, padding: "3px 6px", background: T.paper, color: T.ink }} />
+            </span>
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <span style={{ color: T.brick }}>−</span>
+              <input type="number" value={rateDrafts.otherAmount} placeholder="0" onChange={(e) => setRateDrafts((f) => ({ ...f, otherAmount: e.target.value }))} onBlur={commitOther}
+                style={{ width: 90, textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", border: `1px solid ${T.line}`, borderRadius: 4, padding: "3px 6px", background: T.paper, color: T.ink }} />
+            </span>
+          </div>
+
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 0 4px", fontSize: 13, fontWeight: 600, borderTop: `2px solid ${T.ink}`, marginTop: 4 }}>
+            <span>Total expenses</span>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace" }}>−{money(perf.totalMonthlyExpenses)}</span>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", padding: "10px 0 2px", fontSize: 16, fontWeight: 700, borderTop: `3px double ${T.ink}`, marginTop: 6 }}>
+            <span>Net monthly income</span>
+            <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: perf.netMonthlyIncome >= 0 ? T.pine : T.brick }}>{money(perf.netMonthlyIncome)}</span>
+          </div>
+          <div style={{ fontSize: 11, color: T.inkSoft, marginTop: 8, fontStyle: "italic" }}>
+            Click any figure to edit. Tax/Insurance/HOA/Other post a new dated entry to Reserves below (keeping history); Rent and Mortgage update directly.
+          </div>
+        </Collapsible>
 
         <div style={{ background: T.paper, border: `1px solid ${T.line}`, borderRadius: 8, padding: "12px 16px", marginBottom: 20 }}>
           <div style={{ display: "flex", gap: 18, alignItems: "flex-end", flexWrap: "wrap" }}>
@@ -1288,80 +1978,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
         </table>
         </div>
 
-        <div style={{ marginTop: 32 }}>
-          <SectionTitle title="Utility accounts" subtitle="Kept on file for continuity across tenant turnover" />
-
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16, alignItems: "flex-end" }}>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
-              Utility
-              <select style={inputStyle} value={utilityForm.type} onChange={(e) => setUtilityForm((f) => ({ ...f, type: e.target.value }))}>
-                {UTILITY_TYPES.map((t) => (
-                  <option key={t} value={t}>{t}</option>
-                ))}
-              </select>
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft, flex: 1, minWidth: 140 }}>
-              Provider
-              <input style={inputStyle} type="text" placeholder="e.g. Pepco" value={utilityForm.provider} onChange={(e) => setUtilityForm((f) => ({ ...f, provider: e.target.value }))} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft, flex: 1, minWidth: 160 }}>
-              Account #
-              <input style={inputStyle} type="text" placeholder="Account number" value={utilityForm.account} onChange={(e) => setUtilityForm((f) => ({ ...f, account: e.target.value }))} />
-            </label>
-            <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
-              Pays
-              <select style={inputStyle} value={utilityForm.payer} onChange={(e) => setUtilityForm((f) => ({ ...f, payer: e.target.value }))}>
-                <option value="Tenant">Tenant</option>
-                <option value="Landlord">Landlord</option>
-              </select>
-            </label>
-            <button onClick={addUtility} style={{ display: "flex", alignItems: "center", gap: 6, background: T.pine, color: "#fff", border: "none", borderRadius: 6, padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", height: 37 }}>
-              <Plus size={15} /> Add
-            </button>
-          </div>
-
-          <div className="table-scroll">
-<table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
-            <thead>
-              <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
-                {["Utility", "Provider", "Account #", "Pays", ""].map((h) => (
-                  <th key={h} style={{ textAlign: "left", padding: "8px 6px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: T.inkSoft }}>
-                    {h}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {(utilities[selectedId] || []).map((u) => (
-                <tr key={u.id} style={{ borderBottom: `1px solid ${T.line}` }}>
-                  <td style={{ padding: "9px 6px", fontWeight: 500 }}>{u.type}</td>
-                  <td style={{ padding: "9px 6px" }}>{u.provider}</td>
-                  <td style={{ padding: "9px 6px", fontFamily: "'IBM Plex Mono', monospace", color: T.inkSoft }}>{u.account}</td>
-                  <td style={{ padding: "9px 6px" }}>
-                    <span style={{ background: u.payer === "Tenant" ? T.pineSoft : T.amberSoft, color: u.payer === "Tenant" ? T.pine : "#8A6A2F", fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>
-                      {u.payer}
-                    </span>
-                  </td>
-                  <td style={{ padding: "9px 6px", textAlign: "right" }}>
-                    <button onClick={() => removeUtility(selectedId, u.id)} style={{ background: "none", border: "none", cursor: "pointer", color: T.inkSoft }}>
-                      <Trash2 size={15} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-              {(!utilities[selectedId] || utilities[selectedId].length === 0) && (
-                <tr>
-                  <td colSpan={5} style={{ padding: "16px 6px", color: T.inkSoft, fontStyle: "italic" }}>No utility accounts on file yet.</td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        </div>
-
-        <div style={{ marginTop: 32 }}>
-          <SectionTitle title="Tax & insurance reserves" subtitle="Monthly set-asides build a balance; disbursements draw it down when the real bill comes due" />
-
+        <Collapsible title="Reserves" subtitle="Monthly set-asides build a balance; disbursements draw it down when the real bill comes due" defaultOpen={false}>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16, alignItems: "flex-end" }}>
             <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
               Entry type
@@ -1415,8 +2032,8 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                       {e.type === "contribution" ? "Contribution" : "Disbursement"}
                     </span>
                   </td>
-                  <td style={{ padding: "9px 6px" }}>{e.category}</td>
-                  <td style={{ padding: "9px 6px", color: T.inkSoft }}>{e.note}</td>
+                  <td style={{ padding: "9px 6px" }}>{escrowCategoryLabel(e)}</td>
+                  <td style={{ padding: "9px 6px", color: T.inkSoft }}>{e.category === "Other" ? "" : e.note}</td>
                   <td style={{ padding: "9px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", color: e.type === "contribution" ? T.pine : T.brick }}>
                     {e.type === "contribution" ? "+" : "−"}{money(e.amount)}
                   </td>
@@ -1445,10 +2062,9 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
             </tfoot>
           </table>
         </div>
-        </div>
+        </Collapsible>
 
-        <div style={{ marginTop: 32 }}>
-          <SectionTitle title="Mortgage" subtitle="Kept on file alongside the property record" />
+        <Collapsible title="Mortgage" subtitle="Kept on file alongside the property record" defaultOpen={false}>
           {(() => {
             const m = mortgages[selectedId] || DEFAULT_MORTGAGE;
             return (
@@ -1470,6 +2086,10 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
                       <input style={inputStyle} type="text" placeholder="e.g. Chase" value={m.lender} onChange={(e) => updateMortgage(selectedId, "lender", e.target.value)} />
                     </label>
                     <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+                      Loan #
+                      <input style={{ ...inputStyle, width: 140 }} type="text" placeholder="Loan / account number" value={m.loanNumber} onChange={(e) => updateMortgage(selectedId, "loanNumber", e.target.value)} />
+                    </label>
+                    <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
                       Rate (%)
                       <input style={{ ...inputStyle, width: 90 }} type="number" step="0.01" placeholder="6.50" value={m.rate} onChange={(e) => updateMortgage(selectedId, "rate", e.target.value)} />
                     </label>
@@ -1486,11 +2106,9 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
               </div>
             );
           })()}
-        </div>
+        </Collapsible>
 
-        <div style={{ marginTop: 32 }}>
-          <SectionTitle title="Equipment" subtitle="Track age against expected lifespan to plan replacements ahead of failure" />
-
+        <Collapsible title="Equipment" subtitle="Track age against expected lifespan to plan replacements ahead of failure" defaultOpen={false}>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 16, alignItems: "flex-end" }}>
             <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
               Type
@@ -1560,7 +2178,7 @@ function Ledgers({ properties, ledger, balances, selectedId, setSelectedId, form
             </tbody>
           </table>
         </div>
-        </div>
+        </Collapsible>
       </div>
     </div>
   );
@@ -1578,7 +2196,12 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
         </label>
         <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
           Trade
-          <input style={inputStyle} type="text" placeholder="e.g. HVAC" value={form.trade} onChange={(e) => setForm((f) => ({ ...f, trade: e.target.value }))} />
+          <select style={inputStyle} value={form.trade} onChange={(e) => setForm((f) => ({ ...f, trade: e.target.value }))}>
+            <option value="">Select…</option>
+            {["Plumber", "Electrician", "HVAC", "General Contractor", "Carpenter", "Lawyer", "Landscaper", "Other"].map((t) => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
         </label>
         <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
           Phone
@@ -1587,6 +2210,10 @@ function Providers({ providers, form, setForm, addProvider, removeProvider }) {
         <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft, flex: 1, minWidth: 160 }}>
           Email
           <input style={inputStyle} type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+        </label>
+        <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft, flex: 1, minWidth: 160 }}>
+          Notes
+          <input style={inputStyle} type="text" placeholder="Optional" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} />
         </label>
         <button onClick={addProvider} style={{ display: "flex", alignItems: "center", gap: 6, background: T.pine, color: "#fff", border: "none", borderRadius: 6, padding: "9px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer", height: 37 }}>
           <Plus size={15} /> Add
@@ -1753,7 +2380,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
 
   return (
     <div>
-      <SectionTitle title="Add a compliance item" subtitle="Licenses, tax deadlines, insurance renewals — anything with a due date" />
+      <SectionTitle title="Add a task" subtitle="Licenses, tax deadlines, insurance renewals — anything with a due date" />
       <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 26, alignItems: "flex-end" }}>
         <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
           Property
@@ -1781,6 +2408,10 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
           <input style={inputStyle} type="date" value={form.dueDate} onChange={(e) => setForm((f) => ({ ...f, dueDate: e.target.value }))} />
         </label>
         <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
+          Amount
+          <input style={{ ...inputStyle, width: 100 }} type="number" placeholder="Optional" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} />
+        </label>
+        <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
           Recurrence
           <select style={inputStyle} value={form.recurrence} onChange={(e) => setForm((f) => ({ ...f, recurrence: e.target.value }))}>
             <option value="annual">Annual</option>
@@ -1799,8 +2430,8 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
-            {["Due", "Property", "Type", "Description", "Status", ""].map((h) => (
-              <th key={h} style={{ textAlign: "left", padding: "8px 6px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: T.inkSoft }}>
+            {["Due", "Property", "Type", "Description", "Amount", "Status", ""].map((h) => (
+              <th key={h} style={{ textAlign: h === "Amount" ? "right" : "left", padding: "8px 6px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: T.inkSoft }}>
                 {h}
               </th>
             ))}
@@ -1815,6 +2446,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
                 <td style={{ padding: "9px 6px" }}>{propertyName(c.propertyId)}</td>
                 <td style={{ padding: "9px 6px", fontWeight: 500 }}>{c.itemType}</td>
                 <td style={{ padding: "9px 6px", color: T.inkSoft }}>{c.description}</td>
+                <td style={{ padding: "9px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", color: T.inkSoft }}>{c.amount ? money(c.amount) : "—"}</td>
                 <td style={{ padding: "9px 6px" }}>
                   <span style={{ background: u.bg, color: u.fg, fontSize: 12, fontWeight: 600, padding: "3px 10px", borderRadius: 20 }}>{u.label}</span>
                 </td>
@@ -1840,7 +2472,7 @@ function Compliance({ properties, compliance, form, setForm, addCompliance, mark
           })}
           {sorted.length === 0 && (
             <tr>
-              <td colSpan={6} style={{ padding: "16px 6px", color: T.inkSoft, fontStyle: "italic" }}>No compliance items on file yet.</td>
+              <td colSpan={7} style={{ padding: "16px 6px", color: T.inkSoft, fontStyle: "italic" }}>No tasks on file yet.</td>
             </tr>
           )}
         </tbody>
@@ -1874,6 +2506,10 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
             ))}
           </select>
         </label>
+        <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft, minWidth: 140 }}>
+          Vendor / recipient
+          <input style={inputStyle} type="text" placeholder="Who was paid" value={form.vendor} onChange={(e) => setForm((f) => ({ ...f, vendor: e.target.value }))} />
+        </label>
         <label style={{ display: "flex", flexDirection: "column", gap: 4, fontSize: 12, color: T.inkSoft }}>
           Amount
           <input style={{ ...inputStyle, width: 100 }} type="number" placeholder="0" value={form.amount} onChange={(e) => setForm((f) => ({ ...f, amount: e.target.value }))} />
@@ -1896,7 +2532,7 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
 <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 14 }}>
         <thead>
           <tr style={{ borderBottom: `2px solid ${T.ink}` }}>
-            {["Date", "Property", "Category", "Note", "Amount", ""].map((h) => (
+            {["Date", "Property", "Category", "Vendor / recipient", "Note", "Amount", ""].map((h) => (
               <th key={h} style={{ textAlign: h === "Amount" ? "right" : "left", padding: "8px 6px", fontSize: 12, textTransform: "uppercase", letterSpacing: "0.05em", color: T.inkSoft }}>
                 {h}
               </th>
@@ -1909,6 +2545,7 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
               <td style={{ padding: "9px 6px", color: T.inkSoft }}>{e.date}</td>
               <td style={{ padding: "9px 6px" }}>{nameFor(e.propertyId)}</td>
               <td style={{ padding: "9px 6px" }}>{e.category}</td>
+              <td style={{ padding: "9px 6px" }}>{e.vendor}</td>
               <td style={{ padding: "9px 6px", color: T.inkSoft }}>{e.note}</td>
               <td style={{ padding: "9px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace" }}>{money(e.amount)}</td>
               <td style={{ padding: "9px 6px", textAlign: "right" }}>
@@ -1921,7 +2558,7 @@ function Expenses({ expenses, properties, form, setForm, addExpense, removeExpen
         </tbody>
         <tfoot>
           <tr>
-            <td colSpan={4} style={{ padding: "12px 6px", fontWeight: 600 }}>Total expenses</td>
+            <td colSpan={5} style={{ padding: "12px 6px", fontWeight: 600 }}>Total expenses</td>
             <td style={{ padding: "12px 6px", textAlign: "right", fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, borderTop: `3px double ${T.ink}` }}>
               {money(expenses.reduce((s, e) => s + e.amount, 0))}
             </td>
